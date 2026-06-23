@@ -909,7 +909,7 @@ function renderInvoices(){
 }
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderInvoices();}
 
-async function init(){
+async function init(){ console.log('v3-delete');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
