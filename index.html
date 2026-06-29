@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v13-form-layout -->
+<!-- v16-fix-square -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -10,21 +10,22 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f4;color:#1a1a1a;min-height:100vh}
 .app{display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;align-items:center;gap:10px;padding:12px 20px;background:#fff;border-bottom:1px solid #e5e5e3;position:sticky;top:0;z-index:5}
-.logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:#1a1a1a;flex-shrink:0}
+.topbar{display:flex;align-items:center;gap:10px;padding:12px 20px;background:#0a0a0a;border-bottom:1px solid #222;position:sticky;top:0;z-index:5}
+.logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:#fff;flex-shrink:0;letter-spacing:0.02em}
 .logo i{font-size:20px;color:#00bcd4}
 .nav{display:flex;gap:2px;overflow-x:auto;flex:1}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:12px;color:#666;font-family:inherit;white-space:nowrap;flex-shrink:0}
-.nav-btn:hover{background:#f5f5f4}
-.nav-btn.active{background:#e0f7fa;color:#006064;font-weight:600}
-.sync-btn{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;border:1px solid #e5e5e3;background:#fff;cursor:pointer;font-size:12px;color:#666;font-family:inherit;flex-shrink:0}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:12px;color:#aaa;font-family:inherit;white-space:nowrap;flex-shrink:0}
+.nav-btn:hover{background:#1a1a1a;color:#fff}
+.nav-btn.active{background:#00bcd4;color:#fff;font-weight:600}
+.sync-btn{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;cursor:pointer;font-size:12px;color:#aaa;font-family:inherit;flex-shrink:0}
+.sync-btn:hover{border-color:#00bcd4;color:#00bcd4}
 .syncing i{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .main{flex:1;padding:16px;max-width:800px;width:100%;margin:0 auto}
 .section{display:none}.section.active{display:block}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
-.page-title{font-size:20px;font-weight:600;color:#1a1a1a}
+.page-title{font-size:20px;font-weight:700;color:#1a1a1a;letter-spacing:-0.01em}
 .btn-primary{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#00bcd4;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
 .btn-primary:hover{background:#0097a7}
 .btn-primary:disabled{opacity:0.6;cursor:not-allowed}
@@ -41,11 +42,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-square:disabled{opacity:0.6;cursor:not-allowed}
 .btn-job{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#f3e8ff;color:#6b21a8;border:1px solid #c4b5fd;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
 .btn-job:hover{background:#e9d5ff}
-.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:14px 18px;margin-bottom:12px}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:14px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
-.stat{background:#f5f5f4;border-radius:8px;padding:12px}
-.stat-label{font-size:11px;color:#666;margin-bottom:3px}
-.stat-value{font-size:22px;font-weight:600;color:#1a1a1a}
+.stat{background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:12px}
+.stat-label{font-size:11px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em}
+.stat-value{font-size:22px;font-weight:600;color:#fff}
 .row-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0ee}
 .row-item:last-child{border-bottom:none}
 .avatar{width:36px;height:36px;border-radius:50%;background:#e0f7fa;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#006064;flex-shrink:0}
@@ -114,9 +115,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .workflow-arrow{font-size:12px;color:#ccc}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;z-index:200}
 .toast.show{opacity:1}
-.loading-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:300}
+.loading-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:300}
 .loading-screen i{font-size:32px;color:#00bcd4;animation:spin 1s linear infinite}
-.loading-screen p{font-size:14px;color:#666}
+.loading-screen p{font-size:14px;color:#888}
 .quote-page{display:none;min-height:100vh;background:#f8f9fa;flex-direction:column}
 .quote-page.active{display:flex}
 .quote-header{background:#000;padding:20px;text-align:center}
@@ -660,7 +661,7 @@ async function atCreate(tableId,fields){const r=await fetch(`${AT_BASE}/${tableI
 async function atUpdate(tableId,recordId,fields){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d;}
 async function atDelete(tableId,recordId){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'DELETE',headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);}
 
-async function generateSquarePaymentLink(invoiceNum,totalDollars){try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION},checkout_options:{enable_coupon:false,enable_loyalty:false},payment_note:invoiceNum,pre_populated_data:{},checkout_options:{allow_tipping:true}};const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}}
+async function generateSquarePaymentLink(invoiceNum,totalDollars){try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION},checkout_options:{allow_tipping:true}};const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}}
 
 async function syncAll(){
   const btn=document.getElementById('sync-btn');btn.classList.add('syncing');
@@ -992,8 +993,8 @@ function viewDoc(type,id){
   if(type==='quote'&&status==='sent'){const qLink=getQuoteLink(id);quoteLinkHtml=`<div class="quote-link-box"><div class="quote-link-label"><i class="ti ti-link"></i> Customer approval link</div><div class="quote-link-url">${qLink}</div><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${qLink}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy link</button></div>`;}
   let payLinkHtml='';
   if(type==='invoice'){if(f['Square Payment Link']){payLinkHtml=`<div class="pay-link-box"><div class="pay-link-label"><i class="ti ti-brand-square"></i> Square payment link</div><div class="pay-link-url">${f['Square Payment Link']}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${f['Square Payment Link']}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy</button><a href="${f['Square Payment Link']}" target="_blank" class="btn-square btn-sm" style="text-decoration:none"><i class="ti ti-external-link"></i> Open</a></div></div>`;}else{payLinkHtml=`<div style="background:#f5f5f4;border-radius:8px;padding:12px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#666">No payment link yet</span><button class="btn-square btn-sm" onclick="generateLinkForExisting('${id}')"><i class="ti ti-brand-square"></i> Generate Square link</button></div>`;}}
-  const hasSms=cust&&cust.fields['Phone'];const hasEmail=cust&&cust.fields['Email'];
-  const sendPanel=(hasSms||hasEmail)?`<div class="send-box"><div class="send-box-label">Send to ${f['Customer Name']||'customer'}</div><div class="send-btns">${hasSms?`<button class="btn-sms btn-sm" onclick="sendSms('${id}','${type}')"><i class="ti ti-message"></i> Text</button>`:''} ${hasEmail?`<button class="btn-email btn-sm" onclick="sendEmail('${id}','${type}')"><i class="ti ti-mail"></i> Email</button>`:''}</div></div>`:'';
+  const hasSms=cust&&cust.fields['Phone'];
+  const sendPanel=hasSms?`<div class="send-box"><div class="send-box-label">Send to ${f['Customer Name']||'customer'}</div><div class="send-btns"><button class="btn-sms btn-sm" onclick="sendSms('${id}','${type}')"><i class="ti ti-message"></i> Text</button></div></div>`:'';
   document.getElementById('view-doc-body').innerHTML=`
     <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px"><span><span style="color:#666">Customer: </span>${f['Customer Name']||''}</span><span style="color:#666">${dateStr(f['Date'])}</span></div>
     ${cust&&cust.fields['Vehicle']?`<div style="font-size:12px;color:#666;margin-bottom:10px"><i class="ti ti-car" style="font-size:12px;vertical-align:-1px"></i> ${cust.fields['Vehicle']}</div>`:''}
@@ -1077,7 +1078,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v13-form-layout');
+  console.log('v16-fix-square');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
