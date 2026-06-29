@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v9-forms-airtable -->
+<!-- v10-fix-loading -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1069,7 +1069,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v9-forms-airtable');
+  console.log('v10-fix-loading');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
