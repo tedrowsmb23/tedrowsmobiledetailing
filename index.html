@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v12-form-fix -->
+<!-- v13-form-layout -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -424,12 +424,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="form-group"><label class="form-label">Heading customers see</label><input id="form-heading" placeholder="Get a free quote from Tedrow's Mobile Detailing!"></div>
     <div class="form-group"><label class="form-label">Subheading (optional)</label><input id="form-subheading" placeholder="Fill out the form below and we'll be in touch shortly."></div>
     <div class="form-group"><label class="form-label">Fields to include</label>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;opacity:0.6"><input type="checkbox" id="field-name" checked disabled> Full name <span style="color:#f00;font-size:10px">always required</span></label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;opacity:0.6"><input type="checkbox" id="field-phone" checked disabled> Phone <span style="color:#f00;font-size:10px">always required</span></label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-vehicle"> Vehicle (year, make, model)</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-address"> Address</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-notes"> Additional notes</label>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f5f4;border-radius:8px;font-size:13px;opacity:0.6">
+          <span>Full name</span><span style="color:#f00;font-size:11px;font-weight:600">always required</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f5f4;border-radius:8px;font-size:13px;opacity:0.6">
+          <span>Phone</span><span style="color:#f00;font-size:11px;font-weight:600">always required</span>
+        </div>
+        <label style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f5f4;border-radius:8px;font-size:13px;cursor:pointer">
+          <span>Vehicle (year, make, model)</span><input type="checkbox" id="field-vehicle" style="width:16px;height:16px;cursor:pointer">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f5f4;border-radius:8px;font-size:13px;cursor:pointer">
+          <span>Address</span><input type="checkbox" id="field-address" style="width:16px;height:16px;cursor:pointer">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f5f5f4;border-radius:8px;font-size:13px;cursor:pointer">
+          <span>Additional notes</span><input type="checkbox" id="field-notes" style="width:16px;height:16px;cursor:pointer">
+        </label>
       </div>
     </div>
     <div class="form-group"><label class="form-label">Thank you message</label><textarea id="form-thankyou" placeholder="Thanks! We'll reach out shortly to get you scheduled."></textarea></div>
@@ -566,7 +576,7 @@ function clearFormBuilder(){
   ['form-name','form-heading','form-subheading','form-thankyou'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('form-edit-id').value='';
   document.getElementById('form-builder-title').textContent='New lead form';
-  ['field-vehicle','field-address','field-notes'].forEach(id=>document.getElementById(id).checked=false);
+  ['field-vehicle','field-address','field-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   document.getElementById('field-name').checked=true;document.getElementById('field-phone').checked=true;
 }
 
@@ -1067,7 +1077,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v12-form-fix');
+  console.log('v13-form-layout');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
