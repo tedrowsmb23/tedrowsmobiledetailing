@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v7-tipping -->
+<!-- v9-forms-airtable -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -183,6 +183,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="nav-btn" onclick="showSection('quotes')" id="nav-quotes"><i class="ti ti-file-text"></i> <span>Quotes</span></button>
       <button class="nav-btn" onclick="showSection('jobs')" id="nav-jobs"><i class="ti ti-calendar-event"></i> <span>Jobs</span></button>
       <button class="nav-btn" onclick="showSection('invoices')" id="nav-invoices"><i class="ti ti-receipt"></i> <span>Invoices</span></button>
+      <button class="nav-btn" onclick="showSection('forms')" id="nav-forms"><i class="ti ti-forms"></i> <span>Forms</span></button>
     </div>
     <button class="sync-btn" onclick="syncAll()" id="sync-btn"><i class="ti ti-refresh" id="sync-icon"></i></button>
   </div>
@@ -228,7 +229,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="card" style="padding:4px 18px"><div id="job-list"></div></div>
     </div>
-    <div class="section" id="section-invoices">
+    <div class="section" id="section-forms">
+      <div class="page-header"><span class="page-title">Lead forms</span><button class="btn-primary" onclick="openModal('form-builder')"><i class="ti ti-plus"></i> New form</button></div>
+      <div class="card" style="padding:4px 18px"><div id="form-list"></div></div>
+    </div>
       <div class="page-header"><span class="page-title">Invoices</span><button class="btn-primary" onclick="openModal('invoice')"><i class="ti ti-plus"></i> New invoice</button></div>
       <div class="tabs">
         <button class="tab active" onclick="filterDocs('invoices','all',this)">All</button>
@@ -405,12 +409,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="quote-page" id="form-page">
+  <div class="quote-header"><img src="Logo_FINAL.png" alt="Tedrow's Mobile Detailing"></div>
+  <div class="quote-body"><div id="form-page-content"></div></div>
+  <div class="quote-footer">Tedrow's Mobile Detailing · Clean · Protect · Preserve</div>
+</div>
+
+<!-- Form Builder Modal -->
+<div class="modal-backdrop" id="modal-form-builder">
+  <div class="modal">
+    <div class="modal-title" id="form-builder-title">New lead form</div>
+    <input type="hidden" id="form-edit-id">
+    <div class="form-group"><label class="form-label">Form name (internal)</label><input id="form-name" placeholder="General inquiry, Ceramic coating, Fleet..."></div>
+    <div class="form-group"><label class="form-label">Heading customers see</label><input id="form-heading" placeholder="Get a free quote from Tedrow's Mobile Detailing!"></div>
+    <div class="form-group"><label class="form-label">Subheading (optional)</label><input id="form-subheading" placeholder="Fill out the form below and we'll be in touch shortly."></div>
+    <div class="form-group"><label class="form-label">Fields to include</label>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-name" checked> Full name <span style="color:#f00;font-size:10px">required</span></label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-phone" checked> Phone <span style="color:#f00;font-size:10px">required</span></label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-vehicle"> Vehicle (year, make, model)</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-address"> Address</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-service"> Service interested in</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-notes"> Additional notes</label>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Thank you message</label><textarea id="form-thankyou" placeholder="Thanks! We'll reach out shortly to get you scheduled."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('form-builder')">Cancel</button>
+      <button class="btn-primary" id="form-save-btn" onclick="saveForm()"><i class="ti ti-device-floppy"></i> Save form</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Form Modal -->
+<div class="modal-backdrop" id="modal-view-form">
+  <div class="modal">
+    <div class="modal-title" id="view-form-title"></div>
+    <div id="view-form-body"></div>
+    <div class="modal-footer" id="view-form-footer"></div>
+  </div>
+</div>
 
 <script>
 const AT_TOKEN='pataaV2WO4bTJ9Ei3.9b12449727bf7d6d6eda2b73a1925e7c748e439afaaee5f17e6874433f1ad512';
 const BASE_ID='apps2Jb1pPgwgn2CH';
-const TABLES={customers:'tblumv14VgGeHurO2',services:'tblRG6fv3ggG5Sp2J',quotes:'tblVyPoH6xNgecdRV',invoices:'tbla8c5eQ0NkoQOLm',jobs:'tbli4o5ipTkSJekb3'};
+const TABLES={customers:'tblumv14VgGeHurO2',services:'tblRG6fv3ggG5Sp2J',quotes:'tblVyPoH6xNgecdRV',invoices:'tbla8c5eQ0NkoQOLm',jobs:'tbli4o5ipTkSJekb3',formconfigs:'tblKQtO9oZHNkdj8L'};
 const AT_BASE=`https://api.airtable.com/v0/${BASE_ID}`;
 const AT_HEADERS={'Authorization':'Bearer '+AT_TOKEN,'Content-Type':'application/json'};
 const SQ_TOKEN='EAAAl4Qe4avqN5hWWwPUozokoP8_YGKBMgsKWDt-Py8DKg0q0WTWlkyhC0K6iMUs';
@@ -430,7 +473,145 @@ function dateTimeStr(d){if(!d)return'';try{return new Date(d).toLocaleString('en
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
 function getQueryParam(name){return new URLSearchParams(window.location.search).get(name);}
-function checkRoute(){const page=getQueryParam('page');const id=getQueryParam('id');if(page==='quote'&&id){showQuotePage(id);return true;}return false;}
+function checkRoute(){const page=getQueryParam('page');const id=getQueryParam('id');if(page==='quote'&&id){showQuotePage(id);return true;}if(page==='form'&&id){showFormPage(id);return true;}return false;}
+
+// ── PUBLIC FORM PAGE ──
+async function showFormPage(formId){
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('quote-page').style.display='none';
+  document.getElementById('form-page').classList.add('active');
+  const content=document.getElementById('form-page-content');
+  content.innerHTML=`<div style="text-align:center;padding:40px"><i class="ti ti-refresh" style="font-size:32px;color:#00bcd4;animation:spin 1s linear infinite"></i></div>`;
+  try{
+    const r=await fetch(`${AT_BASE}/${TABLES.formconfigs}/${formId}`,{headers:AT_HEADERS});
+    const rec=await r.json();
+    if(rec.error){content.innerHTML=renderFormPageError('Form not found.');return;}
+    const cfg=JSON.parse(rec.fields['Config']||'{}');
+    renderPublicForm(content,formId,cfg);
+  }catch(e){content.innerHTML=renderFormPageError('Something went wrong.');}
+}
+
+function renderPublicForm(container,formId,cfg){
+  const fields=cfg.fields||{};
+  container.innerHTML=`
+    <div class="quote-card" style="margin-bottom:16px">
+      <div class="quote-card-header">
+        <h2>${cfg.heading||'Get a free quote!'}</h2>
+        ${cfg.subheading?`<p>${cfg.subheading}</p>`:''}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Full name *</label><input id="pf-name" placeholder="John Smith" style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>
+    <div class="form-group"><label class="form-label">Phone number *</label><input id="pf-phone" type="tel" placeholder="(914) 555-0100" style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>
+    ${fields.vehicle?`<div class="form-group"><label class="form-label">Vehicle</label><input id="pf-vehicle" placeholder="2021 Toyota Camry" style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>`:''}
+    ${fields.address?`<div class="form-group"><label class="form-label">Address</label><input id="pf-address" placeholder="123 Main St, Yonkers NY" style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>`:''}
+    ${fields.service?`<div class="form-group"><label class="form-label">Service interested in</label><input id="pf-service" placeholder="Full detail, exterior wash, ceramic coating..." style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>`:''}
+    ${fields.notes?`<div class="form-group"><label class="form-label">Additional notes</label><textarea id="pf-notes" placeholder="Any special requests..." style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px;height:80px;resize:vertical"></textarea></div>`:''}
+    <button id="pf-submit-btn" onclick="submitPublicForm('${formId}',${JSON.stringify(cfg).replace(/\\/g,'\\\\').replace(/'/g,"\\'")})" style="width:100%;padding:16px;background:#00bcd4;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px"><i class="ti ti-send"></i> Send request</button>`;
+}
+
+async function submitPublicForm(formId,cfg){
+  const name=document.getElementById('pf-name')?.value.trim();
+  const phone=document.getElementById('pf-phone')?.value.trim();
+  if(!name){alert('Please enter your name.');return;}
+  if(!phone){alert('Please enter your phone number.');return;}
+  const btn=document.getElementById('pf-submit-btn');
+  if(btn){btn.disabled=true;btn.textContent='Submitting...';}
+  const serviceVal=document.getElementById('pf-service')?.value.trim()||'';
+  const notesVal=document.getElementById('pf-notes')?.value.trim()||'';
+  const combinedNotes=[serviceVal?'Service interest: '+serviceVal:'',notesVal].filter(Boolean).join('\n\n');
+  const fields={'Full Name':name,'Phone':phone,'Vehicle':document.getElementById('pf-vehicle')?.value.trim()||'','Address':document.getElementById('pf-address')?.value.trim()||'','Notes':combinedNotes};
+  try{
+    await fetch(`${AT_BASE}/${TABLES.customers}`,{method:'POST',headers:AT_HEADERS,body:JSON.stringify({records:[{fields}]})});
+    document.getElementById('form-page-content').innerHTML=`<div class="quote-status-box">
+      <div class="quote-status-icon">🚗</div>
+      <div class="quote-status-title" style="color:#006064">${cfg.thankyou||"Thanks! We'll be in touch shortly."}</div>
+      <div class="quote-status-msg" style="margin-top:8px">Tedrow's Mobile Detailing will reach out to you soon.<br><br><strong>Clean · Protect · Preserve</strong></div>
+    </div>`;
+  }catch(e){if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i> Send request';}alert('Something went wrong. Please try again.');}
+}
+
+function renderFormPageError(msg){return`<div class="quote-status-box"><div class="quote-status-icon">🔍</div><div class="quote-status-title">Form not found</div><div class="quote-status-msg">${msg}</div></div>`;}
+
+// ── FORM BUILDER ──
+let localForms=[];
+async function loadForms(){
+  try{
+    const all=await atList(TABLES.formconfigs);
+    localForms=all.map(r=>({id:r.id,name:r.fields['Form Name']||'',cfg:JSON.parse(r.fields['Config']||'{}')}));
+  }catch(e){localForms=[];}
+}
+
+async function saveForm(){
+  const editId=document.getElementById('form-edit-id').value;
+  const name=document.getElementById('form-name').value.trim();
+  if(!name){alert('Please enter a form name.');return;}
+  setBtns(['form-save-btn'],true);
+  const cfg={heading:document.getElementById('form-heading').value.trim()||'Get a free quote!',subheading:document.getElementById('form-subheading').value.trim(),thankyou:document.getElementById('form-thankyou').value.trim()||"Thanks! We'll be in touch shortly.",fields:{vehicle:document.getElementById('field-vehicle').checked,address:document.getElementById('field-address').checked,service:document.getElementById('field-service').checked,notes:document.getElementById('field-notes').checked}};
+  try{
+    if(editId){
+      await atUpdate(TABLES.formconfigs,editId,{'Form Name':name,'Config':JSON.stringify(cfg)});
+      const idx=localForms.findIndex(f=>f.id===editId);
+      if(idx>-1)localForms[idx]={id:editId,name,cfg};
+      toast('Form updated!');
+    } else {
+      const rec=await atCreate(TABLES.formconfigs,{'Form Name':name,'Config':JSON.stringify(cfg)});
+      localForms.push({id:rec.id,name,cfg});
+      toast('Form saved!');
+    }
+    closeModal('form-builder');clearFormBuilder();renderForms();
+  }catch(e){toast('Error: '+e.message);}
+  setBtns(['form-save-btn'],false);
+}
+
+function clearFormBuilder(){
+  ['form-name','form-heading','form-subheading','form-thankyou'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('form-edit-id').value='';
+  document.getElementById('form-builder-title').textContent='New lead form';
+  ['field-vehicle','field-address','field-service','field-notes'].forEach(id=>document.getElementById(id).checked=false);
+  document.getElementById('field-name').checked=true;document.getElementById('field-phone').checked=true;
+}
+
+function viewForm(id){
+  const f=localForms.find(x=>x.id===id);if(!f)return;
+  const link=`${APP_URL}?page=form&id=${id}`;
+  document.getElementById('view-form-title').textContent=f.name;
+  document.getElementById('view-form-body').innerHTML=`
+    <div style="margin-bottom:10px;font-size:13px;color:#666">${f.cfg.heading||'Get a free quote!'}</div>
+    <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:10px">Fields: Name, Phone${f.cfg.fields?.vehicle?', Vehicle':''}${f.cfg.fields?.address?', Address':''}${f.cfg.fields?.service?', Service':''}${f.cfg.fields?.notes?', Notes':''}</div>
+    <div class="quote-link-box">
+      <div class="quote-link-label"><i class="ti ti-link"></i> Share this link</div>
+      <div class="quote-link-url">${link}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${link}').then(()=>toast('Link copied!'))"><i class="ti ti-copy"></i> Copy link</button>
+        <a href="${link}" target="_blank" class="btn-primary btn-sm" style="text-decoration:none"><i class="ti ti-external-link"></i> Preview form</a>
+      </div>
+    </div>`;
+  document.getElementById('view-form-footer').innerHTML=`<button class="btn-secondary btn-danger btn-sm" onclick="deleteForm('${id}')"><i class="ti ti-trash"></i> Delete</button><button class="btn-secondary btn-sm" onclick="editForm('${id}')"><i class="ti ti-edit"></i> Edit</button><button class="btn-primary btn-sm" onclick="closeModal('view-form')">Close</button>`;
+  openModal('view-form');
+}
+
+function editForm(id){
+  const f=localForms.find(x=>x.id===id);if(!f)return;closeModal('view-form');
+  document.getElementById('form-edit-id').value=id;document.getElementById('form-name').value=f.name||'';document.getElementById('form-heading').value=f.cfg.heading||'';document.getElementById('form-subheading').value=f.cfg.subheading||'';document.getElementById('form-thankyou').value=f.cfg.thankyou||'';
+  document.getElementById('field-vehicle').checked=!!f.cfg.fields?.vehicle;document.getElementById('field-address').checked=!!f.cfg.fields?.address;document.getElementById('field-service').checked=!!f.cfg.fields?.service;document.getElementById('field-notes').checked=!!f.cfg.fields?.notes;
+  document.getElementById('form-builder-title').textContent='Edit form';openModal('form-builder');
+}
+
+async function deleteForm(id){
+  if(!confirm('Delete this form?'))return;
+  try{
+    await atDelete(TABLES.formconfigs,id);
+    localForms=localForms.filter(f=>f.id!==id);
+    closeModal('view-form');renderForms();toast('Form deleted');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+function renderForms(){
+  const el=document.getElementById('form-list');
+  if(!localForms.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-forms"></i><p>No forms yet. Create one and share the link on your website!</p></div>`;return;}
+  el.innerHTML=localForms.map(f=>{const link=`${APP_URL}?page=form&id=${f.id}`;return`<div class="row-item"><div class="doc-icon" style="background:#e0f7fa;color:#006064"><i class="ti ti-forms"></i></div><div class="item-info"><div class="item-title">${f.name}</div><div class="item-meta">${f.cfg.heading||'Get a free quote!'}</div></div><div style="display:flex;gap:6px;flex-shrink:0"><button class="btn-secondary btn-sm" onclick="navigator.clipboard.writeText('${link}').then(()=>toast('Link copied!'))"><i class="ti ti-copy"></i></button><button class="btn-secondary btn-sm" onclick="viewForm('${f.id}')"><i class="ti ti-eye"></i></button></div></div>`;}).join('');
+}
 
 async function showQuotePage(quoteId){
   document.getElementById('main-app').style.display='none';
@@ -475,8 +656,12 @@ async function generateSquarePaymentLink(invoiceNum,totalDollars){try{const body
 
 async function syncAll(){
   const btn=document.getElementById('sync-btn');btn.classList.add('syncing');
-  try{const[c,s,q,i,j]=await Promise.all([atList(TABLES.customers),atList(TABLES.services),atList(TABLES.quotes),atList(TABLES.invoices),atList(TABLES.jobs)]);cache.customers=c;cache.services=s;cache.quotes=q;cache.invoices=i;cache.jobs=j;renderAll();toast('Synced!');}
-  catch(e){toast('Sync error: '+e.message);}
+  try{
+    const[c,s,q,i,j,fc]=await Promise.all([atList(TABLES.customers),atList(TABLES.services),atList(TABLES.quotes),atList(TABLES.invoices),atList(TABLES.jobs),atList(TABLES.formconfigs)]);
+    cache.customers=c;cache.services=s;cache.quotes=q;cache.invoices=i;cache.jobs=j;
+    localForms=fc.map(r=>({id:r.id,name:r.fields['Form Name']||'',cfg:JSON.parse(r.fields['Config']||'{}')}));
+    renderAll();toast('Synced!');
+  }catch(e){toast('Sync error: '+e.message);}
   btn.classList.remove('syncing');
 }
 
@@ -881,10 +1066,10 @@ function renderInvoices(){
   if(!list.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-receipt"></i><p>No invoices here.</p></div>`;return;}
   el.innerHTML=[...list].reverse().map(i=>{const f=i.fields;const status=f['Status']||'pending';return`<div class="row-item" onclick="viewDoc('invoice','${i.id}')" style="cursor:pointer"><div class="doc-icon invoice"><i class="ti ti-receipt"></i></div><div class="item-info"><div class="item-title">${f['Invoice Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} · <span class="badge ${status==='paid'?'badge-paid':'badge-pending'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;}).join('');
 }
-function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();}
+function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v7-tipping');
+  console.log('v9-forms-airtable');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
