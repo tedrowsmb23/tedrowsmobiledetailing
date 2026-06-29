@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v20-mobile-nav -->
+<!-- v21-logo -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -180,7 +180,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 <div class="app" id="main-app">
   <div class="topbar">
-    <div class="logo"><i class="ti ti-car"></i> Tedrow's</div>
+    <div class="logo"><img src="Logo_FINAL.png" alt="Tedrow's" style="height:36px;object-fit:contain"></div>
     <div class="nav">
       <button class="nav-btn active" onclick="showSection('dashboard')" id="nav-dashboard"><i class="ti ti-layout-dashboard"></i> <span>Dashboard</span></button>
       <button class="nav-btn" onclick="showSection('customers')" id="nav-customers"><i class="ti ti-users"></i> <span>Customers</span></button>
@@ -1162,7 +1162,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v20-mobile-nav');
+  console.log('v21-logo');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
