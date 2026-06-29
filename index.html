@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v5-address-appt -->
+<!-- v6-jobs -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -39,8 +39,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-square{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
 .btn-square:hover{background:#333}
 .btn-square:disabled{opacity:0.6;cursor:not-allowed}
+.btn-job{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#f3e8ff;color:#6b21a8;border:1px solid #c4b5fd;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
+.btn-job:hover{background:#e9d5ff}
 .card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:14px 18px;margin-bottom:12px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
 .stat{background:#f5f5f4;border-radius:8px;padding:12px}
 .stat-label{font-size:11px;color:#666;margin-bottom:3px}
 .stat-value{font-size:22px;font-weight:600;color:#1a1a1a}
@@ -56,10 +58,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge-paid{background:#e8f5e9;color:#1b5e20}
 .badge-draft{background:#f5f5f4;color:#666}
 .badge-approved{background:#e8f5e9;color:#1b5e20}
+.badge-scheduled{background:#dbeafe;color:#1e40af}
+.badge-in-progress{background:#fef9c3;color:#854d0e}
+.badge-complete{background:#e0f7fa;color:#006064}
+.badge-invoiced{background:#f3e8ff;color:#6b21a8}
 .doc-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .doc-icon.quote{background:#e0f7fa;color:#006064}
 .doc-icon.invoice{background:#e0f7fa;color:#0097a7}
 .doc-icon.service{background:#e8f5e9;color:#1b5e20}
+.doc-icon.job{background:#f3e8ff;color:#6b21a8}
 .modal-backdrop{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);align-items:flex-start;justify-content:center;padding:24px 12px;z-index:100;overflow-y:auto}
 .modal-backdrop.open{display:flex}
 .modal{background:#fff;border-radius:12px;border:1px solid #e5e5e3;padding:20px;width:100%;max-width:500px;margin:auto}
@@ -100,6 +107,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .quote-link-box{background:#e0f7fa;border:1px solid #80deea;border-radius:8px;padding:12px;margin-top:10px}
 .quote-link-label{font-size:11px;color:#006064;font-weight:600;margin-bottom:5px}
 .quote-link-url{font-size:11px;color:#00838f;word-break:break-all;margin-bottom:7px;font-family:monospace;background:#fff;padding:6px 8px;border-radius:6px;border:1px solid #b2ebf2}
+.workflow-bar{display:flex;align-items:center;gap:4px;padding:12px;background:#f5f5f4;border-radius:8px;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.workflow-step{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:#e5e5e3;color:#666}
+.workflow-step.active{background:#00bcd4;color:#fff}
+.workflow-step.done{background:#e8f5e9;color:#1b5e20}
+.workflow-arrow{font-size:12px;color:#ccc}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;z-index:200}
 .toast.show{opacity:1}
 .loading-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:300}
@@ -169,17 +181,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="nav-btn" onclick="showSection('customers')" id="nav-customers"><i class="ti ti-users"></i> <span>Customers</span></button>
       <button class="nav-btn" onclick="showSection('services')" id="nav-services"><i class="ti ti-list-check"></i> <span>Services</span></button>
       <button class="nav-btn" onclick="showSection('quotes')" id="nav-quotes"><i class="ti ti-file-text"></i> <span>Quotes</span></button>
+      <button class="nav-btn" onclick="showSection('jobs')" id="nav-jobs"><i class="ti ti-calendar-event"></i> <span>Jobs</span></button>
       <button class="nav-btn" onclick="showSection('invoices')" id="nav-invoices"><i class="ti ti-receipt"></i> <span>Invoices</span></button>
     </div>
     <button class="sync-btn" onclick="syncAll()" id="sync-btn"><i class="ti ti-refresh" id="sync-icon"></i></button>
   </div>
   <div class="main">
     <div class="section active" id="section-dashboard">
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat"><div class="stat-label">Customers</div><div class="stat-value">—</div></div>
-        <div class="stat"><div class="stat-label">Active quotes</div><div class="stat-value">—</div></div>
-        <div class="stat"><div class="stat-label">Pending invoices</div><div class="stat-value">—</div></div>
-        <div class="stat"><div class="stat-label">Revenue collected</div><div class="stat-value">—</div></div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="card" id="upcoming-jobs-card" style="display:none;margin-bottom:12px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-calendar-event" style="color:#6b21a8"></i> Upcoming jobs</div>
+        <div id="upcoming-jobs"></div>
       </div>
       <div class="card">
         <div style="font-size:14px;font-weight:600;margin-bottom:10px">Recent activity</div>
@@ -205,6 +217,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="card" style="padding:4px 18px"><div id="quote-list"></div></div>
     </div>
+    <div class="section" id="section-jobs">
+      <div class="page-header"><span class="page-title">Jobs</span><button class="btn-job" onclick="openModal('job')"><i class="ti ti-plus"></i> New job</button></div>
+      <div class="tabs">
+        <button class="tab active" onclick="filterJobs('all',this)">All</button>
+        <button class="tab" onclick="filterJobs('scheduled',this)">Scheduled</button>
+        <button class="tab" onclick="filterJobs('in progress',this)">In Progress</button>
+        <button class="tab" onclick="filterJobs('complete',this)">Complete</button>
+        <button class="tab" onclick="filterJobs('invoiced',this)">Invoiced</button>
+      </div>
+      <div class="card" style="padding:4px 18px"><div id="job-list"></div></div>
+    </div>
     <div class="section" id="section-invoices">
       <div class="page-header"><span class="page-title">Invoices</span><button class="btn-primary" onclick="openModal('invoice')"><i class="ti ti-plus"></i> New invoice</button></div>
       <div class="tabs">
@@ -216,6 +239,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- Customer Modal -->
 <div class="modal-backdrop" id="modal-customer">
   <div class="modal">
     <div class="modal-title" id="cust-modal-title">Add customer</div>
@@ -228,7 +253,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="form-group"><label class="form-label">Email</label><input id="cust-email" type="email" placeholder="john@email.com"></div>
     <div class="form-group"><label class="form-label">Vehicle</label><input id="cust-vehicle" placeholder="2021 Toyota Camry"></div>
     <div class="form-group"><label class="form-label">Address</label><input id="cust-address" placeholder="123 Main St, Yonkers NY 10701"></div>
-    <div class="form-group"><label class="form-label">Appointment date</label><input id="cust-appt" type="date"></div>
     <div class="form-group"><label class="form-label">Notes</label><textarea id="cust-notes" placeholder="Special requests..."></textarea></div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('customer')">Cancel</button>
@@ -236,6 +260,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- Service Modal -->
 <div class="modal-backdrop" id="modal-service">
   <div class="modal">
     <div class="modal-title" id="svc-modal-title">Add service</div>
@@ -249,6 +275,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- Quote Modal -->
 <div class="modal-backdrop" id="modal-quote">
   <div class="modal">
     <div class="modal-title">New quote</div>
@@ -273,6 +301,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- Job Modal -->
+<div class="modal-backdrop" id="modal-job">
+  <div class="modal">
+    <div class="modal-title" id="job-modal-title">New job</div>
+    <input type="hidden" id="job-edit-id">
+    <input type="hidden" id="job-quote-id">
+    <div class="form-group"><label class="form-label">Customer</label><select id="job-customer"><option value="">Select customer...</option></select></div>
+    <div class="form-group"><label class="form-label">Address</label><input id="job-address" placeholder="123 Main St, Yonkers NY 10701"></div>
+    <div class="form-group"><label class="form-label">Appointment date & time</label><input id="job-appt" type="datetime-local"></div>
+    <div class="form-group"><label class="form-label">Services</label><textarea id="job-services" placeholder="Full interior detail, exterior wash..."></textarea></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="job-notes" placeholder="Gate code, parking instructions..."></textarea></div>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select id="job-status">
+        <option value="scheduled">Scheduled</option>
+        <option value="in progress">In Progress</option>
+        <option value="complete">Complete</option>
+        <option value="invoiced">Invoiced</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('job')">Cancel</button>
+      <button class="btn-job" id="job-save-btn" onclick="saveJob()"><i class="ti ti-device-floppy"></i> Save job</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
 <div class="modal-backdrop" id="modal-invoice">
   <div class="modal">
     <div class="modal-title">New invoice</div>
@@ -298,6 +354,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- View Customer Modal -->
 <div class="modal-backdrop" id="modal-view-customer">
   <div class="modal">
     <div class="modal-title" id="view-cust-name"></div>
@@ -309,6 +367,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- View Service Modal -->
 <div class="modal-backdrop" id="modal-view-service">
   <div class="modal">
     <div class="modal-title" id="view-svc-title"></div>
@@ -320,6 +380,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- View Doc Modal -->
 <div class="modal-backdrop" id="modal-view-doc">
   <div class="modal">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -330,11 +392,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="modal-footer" id="view-doc-footer"></div>
   </div>
 </div>
+
+<!-- View Job Modal -->
+<div class="modal-backdrop" id="modal-view-job">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="modal-title" style="margin-bottom:0" id="view-job-title"></div>
+      <span id="view-job-badge"></span>
+    </div>
+    <div id="view-job-body"></div>
+    <div class="modal-footer" id="view-job-footer"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
 <script>
 const AT_TOKEN='pataaV2WO4bTJ9Ei3.9b12449727bf7d6d6eda2b73a1925e7c748e439afaaee5f17e6874433f1ad512';
 const BASE_ID='apps2Jb1pPgwgn2CH';
-const TABLES={customers:'tblumv14VgGeHurO2',services:'tblRG6fv3ggG5Sp2J',quotes:'tblVyPoH6xNgecdRV',invoices:'tbla8c5eQ0NkoQOLm'};
+const TABLES={customers:'tblumv14VgGeHurO2',services:'tblRG6fv3ggG5Sp2J',quotes:'tblVyPoH6xNgecdRV',invoices:'tbla8c5eQ0NkoQOLm',jobs:'tbli4o5ipTkSJekb3'};
 const AT_BASE=`https://api.airtable.com/v0/${BASE_ID}`;
 const AT_HEADERS={'Authorization':'Bearer '+AT_TOKEN,'Content-Type':'application/json'};
 const SQ_TOKEN='EAAAl4Qe4avqN5hWWwPUozokoP8_YGKBMgsKWDt-Py8DKg0q0WTWlkyhC0K6iMUs';
@@ -342,15 +418,20 @@ const SQ_LOCATION='LZ4J6BBHSWBHW';
 const SQ_BASE='https://connect.squareup.com/v2';
 const SQ_HEADERS={'Authorization':'Bearer '+SQ_TOKEN,'Content-Type':'application/json','Square-Version':'2024-01-17'};
 const APP_URL='https://app.tedrowsmobiledetail.com';
-let cache={customers:[],services:[],quotes:[],invoices:[]};
-let viewingId={customer:null,service:null,doc:null,docType:null};
-let docFilter={quotes:'all',invoices:'all'};
+
+let cache={customers:[],services:[],quotes:[],invoices:[],jobs:[]};
+let viewingId={customer:null,service:null,doc:null,docType:null,job:null};
+let docFilter={quotes:'all',invoices:'all',jobs:'all'};
+
 function fmt(n){return'$'+Number(n||0).toFixed(2);}
 function initials(name){const p=(name||'?').trim().split(' ');return((p[0]||'?')[0]+(p[p.length-1]||'?')[0]).toUpperCase();}
 function dateStr(d){if(!d)return'';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}catch(e){return d;}}
+function dateTimeStr(d){if(!d)return'';try{return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){return d;}}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+
 function getQueryParam(name){return new URLSearchParams(window.location.search).get(name);}
 function checkRoute(){const page=getQueryParam('page');const id=getQueryParam('id');if(page==='quote'&&id){showQuotePage(id);return true;}return false;}
+
 async function showQuotePage(quoteId){
   document.getElementById('main-app').style.display='none';
   document.getElementById('loading-screen').style.display='none';
@@ -375,48 +456,58 @@ async function showQuotePage(quoteId){
 }
 function renderQuotePageStatus(status,f){
   if(status==='approved')return`<div class="quote-status-box"><div class="quote-status-icon">✅</div><div class="quote-status-title" style="color:#1b5e20">Quote Approved!</div><div class="quote-status-msg">Thank you! We've received your approval for ${f['Quote Number']||'your quote'}.<br><br>We'll be in touch shortly to schedule your service.</div></div>`;
-  return`<div class="quote-status-box"><div class="quote-status-icon">❌</div><div class="quote-status-title" style="color:#991f1f">Quote Declined</div><div class="quote-status-msg">No problem at all! If you change your mind or have questions, don't hesitate to reach out.</div></div>`;
+  return`<div class="quote-status-box"><div class="quote-status-icon">❌</div><div class="quote-status-title" style="color:#991f1f">Quote Declined</div><div class="quote-status-msg">No problem at all! If you change your mind, don't hesitate to reach out.</div></div>`;
 }
 function renderQuotePageError(msg){return`<div class="quote-status-box"><div class="quote-status-icon">🔍</div><div class="quote-status-title">Quote not found</div><div class="quote-status-msg">${msg}</div></div>`;}
 async function respondToQuote(quoteId,response){
   const btn=document.querySelector('.btn-approve');const decBtn=document.querySelector('.btn-decline');
   if(btn)btn.disabled=true;if(decBtn)decBtn.disabled=true;
   try{await fetch(`${AT_BASE}/${TABLES.quotes}/${quoteId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields:{Status:response}})});document.getElementById('quote-page-content').innerHTML=renderQuotePageStatus(response,{});}
-  catch(e){document.getElementById('quote-page-content').innerHTML=renderQuotePageError('Could not save your response. Please try again.');}
+  catch(e){document.getElementById('quote-page-content').innerHTML=renderQuotePageError('Could not save. Please try again.');}
 }
-async function atList(tableId){
-  let all=[],offset='';
-  do{const url=`${AT_BASE}/${tableId}?pageSize=100${offset?'&offset='+offset:''}`;const r=await fetch(url,{headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);all=all.concat(d.records||[]);offset=d.offset||'';}while(offset);
-  return all;
-}
+
+async function atList(tableId){let all=[],offset='';do{const url=`${AT_BASE}/${tableId}?pageSize=100${offset?'&offset='+offset:''}`;const r=await fetch(url,{headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);all=all.concat(d.records||[]);offset=d.offset||'';}while(offset);return all;}
 async function atCreate(tableId,fields){const r=await fetch(`${AT_BASE}/${tableId}`,{method:'POST',headers:AT_HEADERS,body:JSON.stringify({records:[{fields}]})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d.records[0];}
 async function atUpdate(tableId,recordId,fields){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d;}
 async function atDelete(tableId,recordId){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'DELETE',headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);}
-async function generateSquarePaymentLink(invoiceNum,totalDollars){
-  try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION}};const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}
-}
+
+async function generateSquarePaymentLink(invoiceNum,totalDollars){try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION}};const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}}
+
 async function syncAll(){
   const btn=document.getElementById('sync-btn');btn.classList.add('syncing');
-  try{const[c,s,q,i]=await Promise.all([atList(TABLES.customers),atList(TABLES.services),atList(TABLES.quotes),atList(TABLES.invoices)]);cache.customers=c;cache.services=s;cache.quotes=q;cache.invoices=i;renderAll();toast('Synced!');}
+  try{const[c,s,q,i,j]=await Promise.all([atList(TABLES.customers),atList(TABLES.services),atList(TABLES.quotes),atList(TABLES.invoices),atList(TABLES.jobs)]);cache.customers=c;cache.services=s;cache.quotes=q;cache.invoices=i;cache.jobs=j;renderAll();toast('Synced!');}
   catch(e){toast('Sync error: '+e.message);}
   btn.classList.remove('syncing');
 }
+
 function showSection(s){document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));document.getElementById('section-'+s).classList.add('active');document.getElementById('nav-'+s).classList.add('active');}
-function openModal(name){if(name==='quote'||name==='invoice'){populateCustDropdown(name);renderSvcPills(name);}if(name==='quote')resetLines('quote');if(name==='invoice')resetLines('invoice');document.getElementById('modal-'+name).classList.add('open');}
+function openModal(name){
+  if(name==='quote'||name==='invoice'){populateCustDropdown(name);renderSvcPills(name);}
+  if(name==='job'){populateCustDropdown('job');}
+  if(name==='quote')resetLines('quote');
+  if(name==='invoice')resetLines('invoice');
+  document.getElementById('modal-'+name).classList.add('open');
+}
 function closeModal(name){document.getElementById('modal-'+name).classList.remove('open');}
-function populateCustDropdown(type){const sel=document.getElementById(type+'-customer');sel.innerHTML='<option value="">Select customer...</option>';cache.customers.forEach(c=>{const f=c.fields;const o=document.createElement('option');o.value=c.id;o.textContent=(f['Full Name']||'Unknown')+(f['Vehicle']?' — '+f['Vehicle']:'');sel.appendChild(o);});}
+
+function populateCustDropdown(type){
+  const sel=document.getElementById(type+'-customer');
+  sel.innerHTML='<option value="">Select customer...</option>';
+  cache.customers.forEach(c=>{const f=c.fields;const o=document.createElement('option');o.value=c.id;o.textContent=(f['Full Name']||'Unknown')+(f['Vehicle']?' — '+f['Vehicle']:'');sel.appendChild(o);});
+}
 function renderSvcPills(type){const picker=document.getElementById(type+'-svc-picker');const pills=document.getElementById(type+'-svc-pills');if(!cache.services.length){picker.style.display='none';return;}picker.style.display='block';pills.innerHTML=cache.services.map(s=>{const name=(s.fields['Service Name']||'').replace(/'/g,"\\'");return`<span class="svc-pill" onclick="addLine('${type}','${name}',${s.fields['Price']||0})"><i class="ti ti-plus" style="font-size:10px"></i> ${s.fields['Service Name']||''}</span>`;}).join('');}
 function addLine(type,name='',price=''){const c=document.getElementById(type+'-lines');const row=document.createElement('div');row.className='line-row';const n=String(name).replace(/"/g,'&quot;');row.innerHTML=`<input placeholder="Service" value="${n}" oninput="calcTotal('${type}')"><input type="number" placeholder="1" min="1" value="1" oninput="calcTotal('${type}')"><input type="number" placeholder="0.00" value="${price}" min="0" step="0.01" oninput="calcTotal('${type}')"><button style="background:none;border:none;cursor:pointer;color:#999" onclick="this.closest('.line-row').remove();calcTotal('${type}')"><i class="ti ti-x" style="font-size:13px"></i></button>`;c.appendChild(row);calcTotal(type);}
 function resetLines(type){document.getElementById(type+'-lines').innerHTML='';document.getElementById(type+'-customer').value='';document.getElementById(type+'-notes').value='';document.getElementById(type+'-total').textContent='$0.00';addLine(type);}
 function calcTotal(type){let t=0;document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');t+=(parseFloat(i[1].value)||0)*(parseFloat(i[2].value)||0);});document.getElementById(type+'-total').textContent=fmt(t);}
 function getLines(type){const lines=[];document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');const name=i[0].value.trim();if(name)lines.push({name,qty:parseFloat(i[1].value)||1,price:parseFloat(i[2].value)||0});});return lines;}
 function setBtns(ids,disabled){ids.forEach(id=>{const b=document.getElementById(id);if(b){b.disabled=disabled;b.style.opacity=disabled?'0.6':'1';}});}
+
 async function saveCustomer(){
   const editId=document.getElementById('cust-edit-id').value;
   const first=document.getElementById('cust-first').value.trim();const last=document.getElementById('cust-last').value.trim();
   if(!first&&!last){alert('Please enter a name.');return;}
   setBtns(['cust-save-btn'],true);
-  const fields={'Full Name':(first+' '+last).trim(),'Phone':document.getElementById('cust-phone').value.trim(),'Email':document.getElementById('cust-email').value.trim(),'Vehicle':document.getElementById('cust-vehicle').value.trim(),'Address':document.getElementById('cust-address').value.trim(),'Appointment Date':document.getElementById('cust-appt').value||null,'Notes':document.getElementById('cust-notes').value.trim()};
+  const fields={'Full Name':(first+' '+last).trim(),'Phone':document.getElementById('cust-phone').value.trim(),'Email':document.getElementById('cust-email').value.trim(),'Vehicle':document.getElementById('cust-vehicle').value.trim(),'Address':document.getElementById('cust-address').value.trim(),'Notes':document.getElementById('cust-notes').value.trim()};
   try{
     if(editId){await atUpdate(TABLES.customers,editId,fields);const idx=cache.customers.findIndex(c=>c.id===editId);if(idx>-1)cache.customers[idx].fields={...cache.customers[idx].fields,...fields};toast('Customer updated!');}
     else{const rec=await atCreate(TABLES.customers,fields);cache.customers.push(rec);toast('Customer saved!');}
@@ -424,10 +515,7 @@ async function saveCustomer(){
   }catch(e){toast('Error: '+e.message);}
   setBtns(['cust-save-btn'],false);
 }
-function clearCustForm(){
-  ['cust-first','cust-last','cust-phone','cust-email','cust-vehicle','cust-address','cust-appt','cust-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('cust-edit-id').value='';document.getElementById('cust-modal-title').textContent='Add customer';
-}
+function clearCustForm(){['cust-first','cust-last','cust-phone','cust-email','cust-vehicle','cust-address','cust-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('cust-edit-id').value='';document.getElementById('cust-modal-title').textContent='Add customer';}
 function viewCustomer(id){
   const c=cache.customers.find(x=>x.id===id);if(!c)return;
   viewingId.customer=id;const f=c.fields;
@@ -441,7 +529,6 @@ function viewCustomer(id){
       ${f['Email']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-mail" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Email</td><td style="text-align:right;color:#00838f">${f['Email']}</td></tr>`:''}
       ${f['Vehicle']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-car" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Vehicle</td><td style="text-align:right">${f['Vehicle']}</td></tr>`:''}
       ${f['Address']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-map-pin" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Address</td><td style="text-align:right">${f['Address']}</td></tr>`:''}
-      ${f['Appointment Date']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-calendar" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Appointment</td><td style="text-align:right">${dateStr(f['Appointment Date'])}</td></tr>`:''}
     </table>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
       <div class="stat"><div class="stat-label">Quotes</div><div class="stat-value" style="font-size:18px">${cq}</div></div>
@@ -461,12 +548,12 @@ function editCustomer(){
   document.getElementById('cust-email').value=f['Email']||'';
   document.getElementById('cust-vehicle').value=f['Vehicle']||'';
   document.getElementById('cust-address').value=f['Address']||'';
-  document.getElementById('cust-appt').value=f['Appointment Date']||'';
   document.getElementById('cust-notes').value=f['Notes']||'';
   document.getElementById('cust-modal-title').textContent='Edit customer';
   openModal('customer');
 }
 async function deleteCustomer(){if(!confirm('Delete this customer?'))return;try{await atDelete(TABLES.customers,viewingId.customer);cache.customers=cache.customers.filter(x=>x.id!==viewingId.customer);toast('Deleted');closeModal('view-customer');renderAll();}catch(e){toast('Error: '+e.message);}}
+
 async function saveService(){
   const editId=document.getElementById('svc-edit-id').value;const name=document.getElementById('svc-name').value.trim();
   if(!name){alert('Please enter a service name.');return;}
@@ -483,6 +570,177 @@ function clearSvcForm(){['svc-name','svc-desc','svc-price'].forEach(id=>document
 function viewService(id){const s=cache.services.find(x=>x.id===id);if(!s)return;viewingId.service=id;const f=s.fields;document.getElementById('view-svc-title').textContent=f['Service Name']||'';document.getElementById('view-svc-body').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:22px;font-weight:600">${fmt(f['Price'])}</span><span style="font-size:12px;color:#666">default price</span></div>${f['Description']?`<div style="font-size:13px;color:#666;background:#f5f5f4;border-radius:8px;padding:10px;line-height:1.6">${f['Description']}</div>`:'<p style="font-size:13px;color:#999">No description.</p>'}`;openModal('view-service');}
 function editService(){const s=cache.services.find(x=>x.id===viewingId.service);if(!s)return;closeModal('view-service');const f=s.fields;document.getElementById('svc-edit-id').value=s.id;document.getElementById('svc-name').value=f['Service Name']||'';document.getElementById('svc-desc').value=f['Description']||'';document.getElementById('svc-price').value=f['Price']||'';document.getElementById('svc-modal-title').textContent='Edit service';openModal('service');}
 async function deleteService(){if(!confirm('Delete this service?'))return;try{await atDelete(TABLES.services,viewingId.service);cache.services=cache.services.filter(x=>x.id!==viewingId.service);toast('Deleted');closeModal('view-service');renderAll();}catch(e){toast('Error: '+e.message);}}
+
+// ── JOBS ──
+function openCreateJobFromQuote(quoteId){
+  const q=cache.quotes.find(x=>x.id===quoteId);if(!q)return;
+  const f=q.fields;
+  const cust=cache.customers.find(c=>c.id===f['Customer ID']);
+  populateCustDropdown('job');
+  document.getElementById('job-edit-id').value='';
+  document.getElementById('job-quote-id').value=quoteId;
+  document.getElementById('job-customer').value=f['Customer ID']||'';
+  const custAddress=cust?cust.fields['Address']||'':'';
+  document.getElementById('job-address').value=custAddress;
+  let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}
+  document.getElementById('job-services').value=lines.map(l=>l.name).join(', ');
+  document.getElementById('job-notes').value=f['Notes']||'';
+  document.getElementById('job-appt').value='';
+  document.getElementById('job-status').value='scheduled';
+  document.getElementById('job-modal-title').textContent='Create job from quote';
+  closeModal('view-doc');
+  document.getElementById('modal-job').classList.add('open');
+}
+
+async function saveJob(){
+  const editId=document.getElementById('job-edit-id').value;
+  const custId=document.getElementById('job-customer').value;
+  if(!custId){alert('Please select a customer.');return;}
+  setBtns(['job-save-btn'],true);
+  const cust=cache.customers.find(c=>c.id===custId);
+  const custName=cust?cust.fields['Full Name']||'Unknown':'Unknown';
+  const vehicle=cust?cust.fields['Vehicle']||'':'';
+  const appt=document.getElementById('job-appt').value;
+  const fields={
+    'Customer Name':custName,'Customer ID':custId,'Vehicle':vehicle,
+    'Address':document.getElementById('job-address').value.trim(),
+    'Appointment Date':appt?new Date(appt).toISOString():null,
+    'Services':document.getElementById('job-services').value.trim(),
+    'Notes':document.getElementById('job-notes').value.trim(),
+    'Status':document.getElementById('job-status').value,
+    'Quote ID':document.getElementById('job-quote-id').value||''
+  };
+  try{
+    if(editId){
+      await atUpdate(TABLES.jobs,editId,fields);
+      const idx=cache.jobs.findIndex(j=>j.id===editId);
+      if(idx>-1)cache.jobs[idx].fields={...cache.jobs[idx].fields,...fields};
+      toast('Job updated!');
+    } else {
+      const num='JOB-'+String(cache.jobs.length+1).padStart(3,'0');
+      fields['Job Number']=num;
+      const rec=await atCreate(TABLES.jobs,fields);
+      cache.jobs.push(rec);
+      // If created from quote, mark quote as having a job
+      const quoteId=document.getElementById('job-quote-id').value;
+      if(quoteId){
+        await atUpdate(TABLES.quotes,quoteId,{'Status':'approved'});
+        const q=cache.quotes.find(x=>x.id===quoteId);
+        if(q)q.fields['Status']='approved';
+      }
+      toast('Job scheduled!');
+    }
+    closeModal('job');clearJobForm();renderAll();
+  }catch(e){toast('Error: '+e.message);}
+  setBtns(['job-save-btn'],false);
+}
+
+function clearJobForm(){
+  ['job-address','job-appt','job-services','job-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('job-edit-id').value='';
+  document.getElementById('job-quote-id').value='';
+  document.getElementById('job-customer').value='';
+  document.getElementById('job-status').value='scheduled';
+  document.getElementById('job-modal-title').textContent='New job';
+}
+
+function viewJob(id){
+  const j=cache.jobs.find(x=>x.id===id);if(!j)return;
+  viewingId.job=id;const f=j.fields;
+  const status=f['Status']||'scheduled';
+  document.getElementById('view-job-title').textContent=f['Job Number']||'Job';
+  const statusColors={scheduled:'badge-scheduled','in progress':'badge-in-progress',complete:'badge-complete',invoiced:'badge-invoiced',paid:'badge-paid'};
+  document.getElementById('view-job-badge').innerHTML=`<span class="badge ${statusColors[status]||'badge-draft'}">${status}</span>`;
+  const steps=['scheduled','in progress','complete','invoiced','paid'];
+  const currentIdx=steps.indexOf(status);
+  const workflowHtml=`<div class="workflow-bar">${steps.map((s,i)=>`<span class="workflow-step ${i<currentIdx?'done':i===currentIdx?'active':''}">${s}</span>${i<steps.length-1?'<span class="workflow-arrow">→</span>':''}`).join('')}</div>`;
+  document.getElementById('view-job-body').innerHTML=`
+    ${workflowHtml}
+    <table style="width:100%;font-size:13px;margin-bottom:12px">
+      <tr><td style="color:#666;padding:5px 0"><i class="ti ti-user" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Customer</td><td style="text-align:right;font-weight:600">${f['Customer Name']||''}</td></tr>
+      ${f['Vehicle']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-car" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Vehicle</td><td style="text-align:right">${f['Vehicle']}</td></tr>`:''}
+      ${f['Address']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-map-pin" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Address</td><td style="text-align:right">${f['Address']}</td></tr>`:''}
+      ${f['Appointment Date']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-calendar" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Appointment</td><td style="text-align:right;font-weight:600;color:#6b21a8">${dateTimeStr(f['Appointment Date'])}</td></tr>`:''}
+    </table>
+    ${f['Services']?`<div style="background:#f5f5f4;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;color:#666;font-weight:600;margin-bottom:4px">Services</div><div style="font-size:13px">${f['Services']}</div></div>`:''}
+    ${f['Notes']?`<div style="background:#f5f5f4;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;color:#666;font-weight:600;margin-bottom:4px">Notes</div><div style="font-size:13px">${f['Notes']}</div></div>`:''}`;
+
+  const nextStatuses={scheduled:'in progress','in progress':'complete',complete:'invoiced'};
+  const nextLabels={scheduled:'Start job','in progress':'Mark complete',complete:'Create invoice'};
+  let actions='';
+  if(status==='complete'){
+    actions+=`<button class="btn-primary btn-sm" onclick="createInvoiceFromJob('${id}')"><i class="ti ti-receipt"></i> Create invoice</button>`;
+  } else if(nextStatuses[status]){
+    actions+=`<button class="btn-success btn-sm" style="padding:8px 14px" onclick="advanceJob('${id}','${nextStatuses[status]}')"><i class="ti ti-arrow-right"></i> ${nextLabels[status]}</button>`;
+  }
+  document.getElementById('view-job-footer').innerHTML=`<button class="btn-secondary btn-danger btn-sm" onclick="deleteJob('${id}')"><i class="ti ti-trash"></i> Delete</button><button class="btn-secondary btn-sm" onclick="editJob('${id}')"><i class="ti ti-edit"></i> Edit</button><button class="btn-secondary btn-sm" onclick="closeModal('view-job')">Close</button>${actions}`;
+  openModal('view-job');
+}
+
+async function advanceJob(id,newStatus){
+  try{
+    await atUpdate(TABLES.jobs,id,{'Status':newStatus});
+    const j=cache.jobs.find(x=>x.id===id);if(j)j.fields['Status']=newStatus;
+    toast('Job updated to: '+newStatus);
+    renderAll();viewJob(id);
+  }catch(e){toast('Error: '+e.message);}
+}
+
+function createInvoiceFromJob(jobId){
+  const j=cache.jobs.find(x=>x.id===jobId);if(!j)return;
+  const f=j.fields;
+  closeModal('view-job');
+  populateCustDropdown('invoice');
+  renderSvcPills('invoice');
+  resetLines('invoice');
+  document.getElementById('invoice-customer').value=f['Customer ID']||'';
+  if(f['Services']){
+    document.getElementById('invoice-lines').innerHTML='';
+    const svcs=f['Services'].split(',').map(s=>s.trim()).filter(Boolean);
+    svcs.forEach(s=>addLine('invoice',s,0));
+  }
+  document.getElementById('invoice-notes').value=f['Notes']||'';
+  document.getElementById('modal-invoice').classList.add('open');
+  // Mark job as invoiced
+  atUpdate(TABLES.jobs,jobId,{'Status':'invoiced'}).then(()=>{
+    const j=cache.jobs.find(x=>x.id===jobId);if(j)j.fields['Status']='invoiced';
+    renderAll();
+  });
+}
+
+function editJob(id){
+  const j=cache.jobs.find(x=>x.id===id);if(!j)return;
+  closeModal('view-job');const f=j.fields;
+  populateCustDropdown('job');
+  document.getElementById('job-edit-id').value=id;
+  document.getElementById('job-quote-id').value=f['Quote ID']||'';
+  document.getElementById('job-customer').value=f['Customer ID']||'';
+  document.getElementById('job-address').value=f['Address']||'';
+  if(f['Appointment Date']){
+    const d=new Date(f['Appointment Date']);
+    const local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    document.getElementById('job-appt').value=local;
+  } else {document.getElementById('job-appt').value='';}
+  document.getElementById('job-services').value=f['Services']||'';
+  document.getElementById('job-notes').value=f['Notes']||'';
+  document.getElementById('job-status').value=f['Status']||'scheduled';
+  document.getElementById('job-modal-title').textContent='Edit job';
+  document.getElementById('modal-job').classList.add('open');
+}
+
+async function deleteJob(id){
+  if(!confirm('Delete this job?'))return;
+  try{await atDelete(TABLES.jobs,id);cache.jobs=cache.jobs.filter(x=>x.id!==id);toast('Job deleted');closeModal('view-job');renderAll();}
+  catch(e){toast('Error: '+e.message);}
+}
+
+function filterJobs(filter,btn){
+  docFilter.jobs=filter;
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderJobs();
+}
+
 async function saveDoc(type,status,generateLink=false){
   const custId=document.getElementById(type+'-customer').value;if(!custId){alert('Please select a customer.');return;}
   const lines=getLines(type);if(!lines.length){alert('Add at least one service.');return;}
@@ -500,6 +758,7 @@ async function saveDoc(type,status,generateLink=false){
   catch(e){toast('Error: '+e.message);}
   setBtns(btnIds,false);
 }
+
 function getQuoteLink(quoteId){return`${APP_URL}?page=quote&id=${quoteId}`;}
 function buildSms(doc,type,cust){
   const f=doc.fields;const cf=cust?cust.fields:{};
@@ -525,6 +784,7 @@ async function deleteDoc(type,id){if(!confirm('Delete this '+(type==='quote'?'qu
 async function markStatus(docId,type,status){try{await atUpdate(type==='quote'?TABLES.quotes:TABLES.invoices,docId,{'Status':status});const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===docId);if(doc)doc.fields['Status']=status;toast(status==='approved'?'Quote approved!':status==='paid'?'Invoice marked paid!':'Updated!');renderAll();closeModal('view-doc');}catch(e){toast('Error: '+e.message);}}
 async function generateLinkForExisting(docId){const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;const f=inv.fields;toast('Generating Square payment link...');const link=await generateSquarePaymentLink(f['Invoice Number']||docId,f['Total']||0);if(!link){toast('Could not generate link');return;}try{await atUpdate(TABLES.invoices,docId,{'Square Payment Link':link});inv.fields['Square Payment Link']=link;toast('Payment link added!');viewDoc('invoice',docId);}catch(e){toast('Error: '+e.message);}}
 function filterDocs(type,filter,btn){docFilter[type]=filter;btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');type==='quotes'?renderQuotes():renderInvoices();}
+
 function viewDoc(type,id){
   const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===id);if(!doc)return;
   viewingId.doc=id;viewingId.docType=type;
@@ -550,30 +810,50 @@ function viewDoc(type,id){
     ${quoteLinkHtml}${payLinkHtml}${sendPanel}`;
   let action='';
   if(type==='quote'&&status==='sent')action=`<button class="btn-success btn-sm" style="padding:8px 14px" onclick="markStatus('${id}','quote','approved')"><i class="ti ti-check"></i> Mark approved</button>`;
+  if(type==='quote'&&status==='approved')action=`<button class="btn-job btn-sm" style="padding:8px 14px" onclick="openCreateJobFromQuote('${id}')"><i class="ti ti-calendar-event"></i> Create job</button>`;
   if(type==='invoice'&&status==='pending')action=`<button class="btn-success btn-sm" style="padding:8px 14px" onclick="markStatus('${id}','invoice','paid')"><i class="ti ti-check"></i> Mark as paid</button>`;
   document.getElementById('view-doc-footer').innerHTML=`<button class="btn-secondary btn-danger btn-sm" onclick="deleteDoc('${type}','${id}')"><i class="ti ti-trash"></i> Delete</button><button class="btn-secondary btn-sm" onclick="closeModal('view-doc')">Close</button>${action}`;
   openModal('view-doc');
 }
+
 function renderDashboard(){
   const revenue=cache.invoices.filter(i=>i.fields['Status']==='paid').reduce((s,i)=>s+(i.fields['Total']||0),0);
-  document.getElementById('stats-grid').innerHTML=`<div class="stat"><div class="stat-label">Customers</div><div class="stat-value">${cache.customers.length}</div></div><div class="stat"><div class="stat-label">Active quotes</div><div class="stat-value">${cache.quotes.filter(q=>['sent','approved'].includes(q.fields['Status'])).length}</div></div><div class="stat"><div class="stat-label">Pending invoices</div><div class="stat-value">${cache.invoices.filter(i=>i.fields['Status']==='pending').length}</div></div><div class="stat"><div class="stat-label">Revenue collected</div><div class="stat-value">${fmt(revenue)}</div></div>`;
-  const recent=[...cache.quotes.map(q=>({...q,_type:'quote',_d:new Date(q.fields['Date']||0)})),...cache.invoices.map(i=>({...i,_type:'invoice',_d:new Date(i.fields['Date']||0)}))].sort((a,b)=>b._d-a._d).slice(0,6);
+  const scheduledJobs=cache.jobs.filter(j=>['scheduled','in progress'].includes(j.fields['Status'])).length;
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat"><div class="stat-label">Customers</div><div class="stat-value">${cache.customers.length}</div></div>
+    <div class="stat"><div class="stat-label">Active quotes</div><div class="stat-value">${cache.quotes.filter(q=>['sent','approved'].includes(q.fields['Status'])).length}</div></div>
+    <div class="stat"><div class="stat-label">Jobs scheduled</div><div class="stat-value">${scheduledJobs}</div></div>
+    <div class="stat"><div class="stat-label">Pending invoices</div><div class="stat-value">${cache.invoices.filter(i=>i.fields['Status']==='pending').length}</div></div>
+    <div class="stat"><div class="stat-label">Revenue collected</div><div class="stat-value">${fmt(revenue)}</div></div>`;
+
+  // Upcoming jobs
+  const upcoming=cache.jobs.filter(j=>['scheduled','in progress'].includes(j.fields['Status'])&&j.fields['Appointment Date']).sort((a,b)=>new Date(a.fields['Appointment Date'])-new Date(b.fields['Appointment Date'])).slice(0,5);
+  const upcomingCard=document.getElementById('upcoming-jobs-card');
+  const upcomingEl=document.getElementById('upcoming-jobs');
+  if(upcoming.length){
+    upcomingCard.style.display='block';
+    upcomingEl.innerHTML=upcoming.map(j=>{const f=j.fields;return`<div class="row-item" onclick="viewJob('${j.id}')" style="cursor:pointer">
+      <div class="doc-icon job"><i class="ti ti-calendar-event"></i></div>
+      <div class="item-info"><div class="item-title">${f['Customer Name']||''} · ${f['Vehicle']||''}</div><div class="item-meta"><i class="ti ti-clock" style="font-size:11px"></i> ${dateTimeStr(f['Appointment Date'])}${f['Address']?' · '+f['Address']:''}</div></div>
+      <span class="badge badge-scheduled">${f['Status']||'scheduled'}</span>
+    </div>`;}).join('');
+  } else {upcomingCard.style.display='none';}
+
+  const recent=[...cache.quotes.map(q=>({...q,_type:'quote',_d:new Date(q.fields['Date']||0)})),...cache.invoices.map(i=>({...i,_type:'invoice',_d:new Date(i.fields['Date']||0)}))].sort((a,b)=>b._d-a._d).slice(0,5);
   const el=document.getElementById('recent-activity');
   if(!recent.length){el.innerHTML=`<div class="empty-state" style="padding:24px"><i class="ti ti-activity"></i><p>No activity yet. Add a customer to get started!</p></div>`;return;}
   const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft',pending:'badge-pending',paid:'badge-paid'};
   el.innerHTML=recent.map(d=>{const f=d.fields;const status=f['Status']||'draft';const num=f['Quote Number']||f['Invoice Number']||'';return`<div class="row-item" onclick="viewDoc('${d._type}','${d.id}')" style="cursor:pointer"><div class="doc-icon ${d._type}"><i class="ti ti-${d._type==='quote'?'file-text':'receipt'}"></i></div><div class="item-info"><div class="item-title">${num} · ${f['Customer Name']||''}</div><div class="item-meta">${d._type==='quote'?'Quote':'Invoice'} · ${dateStr(f['Date'])}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:13px;font-weight:600">${fmt(f['Total'])}</div><span class="badge ${bm[status]||'badge-draft'}">${status}</span></div></div>`;}).join('');
 }
+
 function renderCustomers(){
   const el=document.getElementById('customer-list');
   if(!cache.customers.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-users"></i><p>No customers yet.</p></div>`;return;}
-  el.innerHTML=cache.customers.map(c=>{const f=c.fields;const name=f['Full Name']||'Unknown';
-    const appt=f['Appointment Date']?` · 📅 ${dateStr(f['Appointment Date'])}`:'';
-    return`<div class="row-item"><div class="avatar">${initials(name)}</div><div class="item-info"><div class="item-title">${name}</div><div class="item-meta">${[f['Vehicle'],f['Phone']].filter(Boolean).join(' · ')}${appt}</div></div><button class="btn-secondary btn-sm" onclick="viewCustomer('${c.id}')"><i class="ti ti-eye"></i></button></div>`;
-  }).join('');
+  el.innerHTML=cache.customers.map(c=>{const f=c.fields;const name=f['Full Name']||'Unknown';return`<div class="row-item"><div class="avatar">${initials(name)}</div><div class="item-info"><div class="item-title">${name}</div><div class="item-meta">${[f['Vehicle'],f['Phone']].filter(Boolean).join(' · ')}</div></div><button class="btn-secondary btn-sm" onclick="viewCustomer('${c.id}')"><i class="ti ti-eye"></i></button></div>`;}).join('');
 }
 function renderServices(){
   const el=document.getElementById('service-list');
-  if(!cache.services.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-list-check"></i><p>No services yet. Add your detailing packages!</p></div>`;return;}
+  if(!cache.services.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-list-check"></i><p>No services yet.</p></div>`;return;}
   el.innerHTML=cache.services.map(s=>{const f=s.fields;return`<div class="row-item"><div class="doc-icon service"><i class="ti ti-sparkles"></i></div><div class="item-info"><div class="item-title">${f['Service Name']||''}</div><div class="item-meta">${f['Description']||'No description'}</div></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><span style="font-size:13px;font-weight:600">${fmt(f['Price'])}</span><button class="btn-secondary btn-sm" onclick="viewService('${s.id}')"><i class="ti ti-eye"></i></button></div></div>`;}).join('');
 }
 function renderQuotes(){
@@ -583,15 +863,28 @@ function renderQuotes(){
   const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft'};
   el.innerHTML=[...list].reverse().map(q=>{const f=q.fields;const status=f['Status']||'draft';return`<div class="row-item" onclick="viewDoc('quote','${q.id}')" style="cursor:pointer"><div class="doc-icon quote"><i class="ti ti-file-text"></i></div><div class="item-info"><div class="item-title">${f['Quote Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} · <span class="badge ${bm[status]||'badge-draft'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;}).join('');
 }
+function renderJobs(){
+  const el=document.getElementById('job-list');let list=cache.jobs;
+  if(docFilter.jobs!=='all')list=list.filter(j=>j.fields['Status']===docFilter.jobs);
+  if(!list.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-calendar-event"></i><p>No jobs here. Approve a quote to create one!</p></div>`;return;}
+  const statusColors={scheduled:'badge-scheduled','in progress':'badge-in-progress',complete:'badge-complete',invoiced:'badge-invoiced',paid:'badge-paid'};
+  list=[...list].sort((a,b)=>{const da=new Date(a.fields['Appointment Date']||0);const db=new Date(b.fields['Appointment Date']||0);return da-db;});
+  el.innerHTML=list.map(j=>{const f=j.fields;const status=f['Status']||'scheduled';return`<div class="row-item" onclick="viewJob('${j.id}')" style="cursor:pointer">
+    <div class="doc-icon job"><i class="ti ti-calendar-event"></i></div>
+    <div class="item-info"><div class="item-title">${f['Job Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${f['Appointment Date']?dateTimeStr(f['Appointment Date']):'No date set'}${f['Vehicle']?' · '+f['Vehicle']:''}</div></div>
+    <span class="badge ${statusColors[status]||'badge-draft'}" style="flex-shrink:0">${status}</span>
+  </div>`;}).join('');
+}
 function renderInvoices(){
   const el=document.getElementById('invoice-list');let list=cache.invoices;
   if(docFilter.invoices!=='all')list=list.filter(i=>i.fields['Status']===docFilter.invoices);
   if(!list.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-receipt"></i><p>No invoices here.</p></div>`;return;}
   el.innerHTML=[...list].reverse().map(i=>{const f=i.fields;const status=f['Status']||'pending';return`<div class="row-item" onclick="viewDoc('invoice','${i.id}')" style="cursor:pointer"><div class="doc-icon invoice"><i class="ti ti-receipt"></i></div><div class="item-info"><div class="item-title">${f['Invoice Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} · <span class="badge ${status==='paid'?'badge-paid':'badge-pending'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;}).join('');
 }
-function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderInvoices();}
+function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();}
+
 async function init(){
-  console.log('v5-address-appt');
+  console.log('v6-jobs');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
