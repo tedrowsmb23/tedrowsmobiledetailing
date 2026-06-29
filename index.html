@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v6-jobs -->
+<!-- v7-tipping -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -471,7 +471,7 @@ async function atCreate(tableId,fields){const r=await fetch(`${AT_BASE}/${tableI
 async function atUpdate(tableId,recordId,fields){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d;}
 async function atDelete(tableId,recordId){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'DELETE',headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);}
 
-async function generateSquarePaymentLink(invoiceNum,totalDollars){try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION}};const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}}
+async function generateSquarePaymentLink(invoiceNum,totalDollars){try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION},checkout_options:{enable_coupon:false,enable_loyalty:false},payment_note:invoiceNum,pre_populated_data:{},checkout_options:{allow_tipping:true}};const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}}
 
 async function syncAll(){
   const btn=document.getElementById('sync-btn');btn.classList.add('syncing');
@@ -884,7 +884,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();}
 
 async function init(){
-  console.log('v6-jobs');
+  console.log('v7-tipping');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
