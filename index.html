@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v18-tax-discount -->
+<!-- v19-auto-invoice -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -965,7 +965,13 @@ function createInvoiceFromJob(jobId){
   if(f['Services']){
     document.getElementById('invoice-lines').innerHTML='';
     const svcs=f['Services'].split(',').map(s=>s.trim()).filter(Boolean);
-    svcs.forEach(s=>addLine('invoice',s,0));
+    svcs.forEach(svcName=>{
+      // Try to find matching service in catalog for price lookup
+      const match=cache.services.find(s=>(s.fields['Service Name']||'').toLowerCase()===svcName.toLowerCase());
+      const price=match?match.fields['Price']||0:0;
+      addLine('invoice',svcName,price);
+    });
+    calcTotal('invoice');
   }
   document.getElementById('invoice-notes').value=f['Notes']||'';
   document.getElementById('modal-invoice').classList.add('open');
@@ -1152,7 +1158,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v18-tax-discount');
+  console.log('v19-auto-invoice');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
