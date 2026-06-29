@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v10-fix-loading -->
+<!-- v11-fix-toast -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -450,6 +450,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 const AT_TOKEN='pataaV2WO4bTJ9Ei3.9b12449727bf7d6d6eda2b73a1925e7c748e439afaaee5f17e6874433f1ad512';
 const BASE_ID='apps2Jb1pPgwgn2CH';
@@ -470,7 +472,7 @@ function fmt(n){return'$'+Number(n||0).toFixed(2);}
 function initials(name){const p=(name||'?').trim().split(' ');return((p[0]||'?')[0]+(p[p.length-1]||'?')[0]).toUpperCase();}
 function dateStr(d){if(!d)return'';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}catch(e){return d;}}
 function dateTimeStr(d){if(!d)return'';try{return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){return d;}}
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+function toast(msg){const el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
 
 function getQueryParam(name){return new URLSearchParams(window.location.search).get(name);}
 function checkRoute(){const page=getQueryParam('page');const id=getQueryParam('id');if(page==='quote'&&id){showQuotePage(id);return true;}if(page==='form'&&id){showFormPage(id);return true;}return false;}
@@ -1069,7 +1071,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v10-fix-loading');
+  console.log('v11-fix-toast');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
