@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v11-fix-toast -->
+<!-- v12-form-fix -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -424,12 +424,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="form-group"><label class="form-label">Heading customers see</label><input id="form-heading" placeholder="Get a free quote from Tedrow's Mobile Detailing!"></div>
     <div class="form-group"><label class="form-label">Subheading (optional)</label><input id="form-subheading" placeholder="Fill out the form below and we'll be in touch shortly."></div>
     <div class="form-group"><label class="form-label">Fields to include</label>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-name" checked> Full name <span style="color:#f00;font-size:10px">required</span></label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-phone" checked> Phone <span style="color:#f00;font-size:10px">required</span></label>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;opacity:0.6"><input type="checkbox" id="field-name" checked disabled> Full name <span style="color:#f00;font-size:10px">always required</span></label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;opacity:0.6"><input type="checkbox" id="field-phone" checked disabled> Phone <span style="color:#f00;font-size:10px">always required</span></label>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-vehicle"> Vehicle (year, make, model)</label>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-address"> Address</label>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-service"> Service interested in</label>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="field-notes"> Additional notes</label>
       </div>
     </div>
@@ -507,7 +506,6 @@ function renderPublicForm(container,formId,cfg){
     <div class="form-group"><label class="form-label">Phone number *</label><input id="pf-phone" type="tel" placeholder="(914) 555-0100" style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>
     ${fields.vehicle?`<div class="form-group"><label class="form-label">Vehicle</label><input id="pf-vehicle" placeholder="2021 Toyota Camry" style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>`:''}
     ${fields.address?`<div class="form-group"><label class="form-label">Address</label><input id="pf-address" placeholder="123 Main St, Yonkers NY" style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>`:''}
-    ${fields.service?`<div class="form-group"><label class="form-label">Service interested in</label><input id="pf-service" placeholder="Full detail, exterior wash, ceramic coating..." style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px"></div>`:''}
     ${fields.notes?`<div class="form-group"><label class="form-label">Additional notes</label><textarea id="pf-notes" placeholder="Any special requests..." style="width:100%;font-size:14px;font-family:inherit;padding:10px 12px;border:1px solid #d4d4d2;border-radius:8px;height:80px;resize:vertical"></textarea></div>`:''}
     <button id="pf-submit-btn" onclick="submitPublicForm('${formId}',${JSON.stringify(cfg).replace(/\\/g,'\\\\').replace(/'/g,"\\'")})" style="width:100%;padding:16px;background:#00bcd4;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px"><i class="ti ti-send"></i> Send request</button>`;
 }
@@ -519,10 +517,8 @@ async function submitPublicForm(formId,cfg){
   if(!phone){alert('Please enter your phone number.');return;}
   const btn=document.getElementById('pf-submit-btn');
   if(btn){btn.disabled=true;btn.textContent='Submitting...';}
-  const serviceVal=document.getElementById('pf-service')?.value.trim()||'';
   const notesVal=document.getElementById('pf-notes')?.value.trim()||'';
-  const combinedNotes=[serviceVal?'Service interest: '+serviceVal:'',notesVal].filter(Boolean).join('\n\n');
-  const fields={'Full Name':name,'Phone':phone,'Vehicle':document.getElementById('pf-vehicle')?.value.trim()||'','Address':document.getElementById('pf-address')?.value.trim()||'','Notes':combinedNotes};
+  const fields={'Full Name':name,'Phone':phone,'Vehicle':document.getElementById('pf-vehicle')?.value.trim()||'','Address':document.getElementById('pf-address')?.value.trim()||'','Notes':notesVal};
   try{
     await fetch(`${AT_BASE}/${TABLES.customers}`,{method:'POST',headers:AT_HEADERS,body:JSON.stringify({records:[{fields}]})});
     document.getElementById('form-page-content').innerHTML=`<div class="quote-status-box">
@@ -549,7 +545,7 @@ async function saveForm(){
   const name=document.getElementById('form-name').value.trim();
   if(!name){alert('Please enter a form name.');return;}
   setBtns(['form-save-btn'],true);
-  const cfg={heading:document.getElementById('form-heading').value.trim()||'Get a free quote!',subheading:document.getElementById('form-subheading').value.trim(),thankyou:document.getElementById('form-thankyou').value.trim()||"Thanks! We'll be in touch shortly.",fields:{vehicle:document.getElementById('field-vehicle').checked,address:document.getElementById('field-address').checked,service:document.getElementById('field-service').checked,notes:document.getElementById('field-notes').checked}};
+  const cfg={heading:document.getElementById('form-heading').value.trim()||'Get a free quote!',subheading:document.getElementById('form-subheading').value.trim(),thankyou:document.getElementById('form-thankyou').value.trim()||"Thanks! We'll be in touch shortly.",fields:{vehicle:document.getElementById('field-vehicle').checked,address:document.getElementById('field-address').checked,notes:document.getElementById('field-notes').checked}};
   try{
     if(editId){
       await atUpdate(TABLES.formconfigs,editId,{'Form Name':name,'Config':JSON.stringify(cfg)});
@@ -570,7 +566,7 @@ function clearFormBuilder(){
   ['form-name','form-heading','form-subheading','form-thankyou'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('form-edit-id').value='';
   document.getElementById('form-builder-title').textContent='New lead form';
-  ['field-vehicle','field-address','field-service','field-notes'].forEach(id=>document.getElementById(id).checked=false);
+  ['field-vehicle','field-address','field-notes'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('field-name').checked=true;document.getElementById('field-phone').checked=true;
 }
 
@@ -580,7 +576,7 @@ function viewForm(id){
   document.getElementById('view-form-title').textContent=f.name;
   document.getElementById('view-form-body').innerHTML=`
     <div style="margin-bottom:10px;font-size:13px;color:#666">${f.cfg.heading||'Get a free quote!'}</div>
-    <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:10px">Fields: Name, Phone${f.cfg.fields?.vehicle?', Vehicle':''}${f.cfg.fields?.address?', Address':''}${f.cfg.fields?.service?', Service':''}${f.cfg.fields?.notes?', Notes':''}</div>
+    <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:10px">Fields: Name, Phone${f.cfg.fields?.vehicle?', Vehicle':''}${f.cfg.fields?.address?', Address':''}${f.cfg.fields?.notes?', Notes':''}</div>
     <div class="quote-link-box">
       <div class="quote-link-label"><i class="ti ti-link"></i> Share this link</div>
       <div class="quote-link-url">${link}</div>
@@ -596,7 +592,7 @@ function viewForm(id){
 function editForm(id){
   const f=localForms.find(x=>x.id===id);if(!f)return;closeModal('view-form');
   document.getElementById('form-edit-id').value=id;document.getElementById('form-name').value=f.name||'';document.getElementById('form-heading').value=f.cfg.heading||'';document.getElementById('form-subheading').value=f.cfg.subheading||'';document.getElementById('form-thankyou').value=f.cfg.thankyou||'';
-  document.getElementById('field-vehicle').checked=!!f.cfg.fields?.vehicle;document.getElementById('field-address').checked=!!f.cfg.fields?.address;document.getElementById('field-service').checked=!!f.cfg.fields?.service;document.getElementById('field-notes').checked=!!f.cfg.fields?.notes;
+  document.getElementById('field-vehicle').checked=!!f.cfg.fields?.vehicle;document.getElementById('field-address').checked=!!f.cfg.fields?.address;document.getElementById('field-notes').checked=!!f.cfg.fields?.notes;
   document.getElementById('form-builder-title').textContent='Edit form';openModal('form-builder');
 }
 
@@ -1071,7 +1067,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v11-fix-toast');
+  console.log('v12-form-fix');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
