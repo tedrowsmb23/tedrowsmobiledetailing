@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v17-square-proxy -->
+<!-- v18-tax-discount -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -297,7 +297,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <button class="add-line-btn" onclick="addLine('quote')"><i class="ti ti-plus" style="font-size:11px"></i> Add line</button>
     </div>
-    <div class="total-bar"><span class="total-label">Total</span><span class="total-amount" id="quote-total">$0.00</span></div>
+    <!-- Discount -->
+    <div style="background:#f5f5f4;border-radius:8px;padding:10px 12px;margin-bottom:8px">
+      <div style="font-size:11px;font-weight:600;color:#666;margin-bottom:8px">DISCOUNT (OPTIONAL)</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="quote-discount-type" onchange="calcTotal('quote')" style="font-size:12px;padding:5px 8px;border:1px solid #d4d4d2;border-radius:6px;background:#fff;width:110px">
+          <option value="none">No discount</option>
+          <option value="percent">% off</option>
+          <option value="dollar">$ off</option>
+        </select>
+        <input id="quote-discount-value" type="number" min="0" step="0.01" placeholder="0" oninput="calcTotal('quote')" style="font-size:12px;padding:5px 8px;border:1px solid #d4d4d2;border-radius:6px;width:80px;display:none">
+      </div>
+    </div>
+    <!-- Totals breakdown -->
+    <div style="border:1px solid #e5e5e3;border-radius:8px;overflow:hidden;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee"><span>Subtotal</span><span id="quote-subtotal">$0.00</span></div>
+      <div id="quote-discount-row" style="display:none;justify-content:space-between;padding:7px 12px;font-size:12px;color:#e53e3e;border-bottom:1px solid #f0f0ee"><span id="quote-discount-label">Discount</span><span id="quote-discount-amount">-$0.00</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee"><span>Tax (8.375%)</span><span id="quote-tax">$0.00</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 12px;font-size:15px;font-weight:700;color:#1a1a1a;background:#f9f9f9"><span>Total</span><span id="quote-total">$0.00</span></div>
+    </div>
     <div class="form-group" style="margin-top:10px"><label class="form-label">Notes to customer</label><textarea id="quote-notes" placeholder="Any details..."></textarea></div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('quote')">Cancel</button>
@@ -349,7 +367,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <button class="add-line-btn" onclick="addLine('invoice')"><i class="ti ti-plus" style="font-size:11px"></i> Add line</button>
     </div>
-    <div class="total-bar"><span class="total-label">Total</span><span class="total-amount" id="invoice-total">$0.00</span></div>
+    <!-- Discount -->
+    <div style="background:#f5f5f4;border-radius:8px;padding:10px 12px;margin-bottom:8px">
+      <div style="font-size:11px;font-weight:600;color:#666;margin-bottom:8px">DISCOUNT (OPTIONAL)</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="invoice-discount-type" onchange="calcTotal('invoice')" style="font-size:12px;padding:5px 8px;border:1px solid #d4d4d2;border-radius:6px;background:#fff;width:110px">
+          <option value="none">No discount</option>
+          <option value="percent">% off</option>
+          <option value="dollar">$ off</option>
+        </select>
+        <input id="invoice-discount-value" type="number" min="0" step="0.01" placeholder="0" oninput="calcTotal('invoice')" style="font-size:12px;padding:5px 8px;border:1px solid #d4d4d2;border-radius:6px;width:80px;display:none">
+      </div>
+    </div>
+    <!-- Totals breakdown -->
+    <div style="border:1px solid #e5e5e3;border-radius:8px;overflow:hidden;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee"><span>Subtotal</span><span id="invoice-subtotal">$0.00</span></div>
+      <div id="invoice-discount-row" style="display:none;justify-content:space-between;padding:7px 12px;font-size:12px;color:#e53e3e;border-bottom:1px solid #f0f0ee"><span id="invoice-discount-label">Discount</span><span id="invoice-discount-amount">-$0.00</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee"><span>Tax (8.375%)</span><span id="invoice-tax">$0.00</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 12px;font-size:15px;font-weight:700;color:#1a1a1a;background:#f9f9f9"><span>Total</span><span id="invoice-total">$0.00</span></div>
+    </div>
     <div class="form-group" style="margin-top:10px"><label class="form-label">Notes to customer</label><textarea id="invoice-notes" placeholder="Payment due within 3 days..."></textarea></div>
     <div class="form-group"><label class="form-label">Square payment link</label><input id="invoice-square-link" placeholder="https://square.link/u/..."></div>
     <div class="modal-footer">
@@ -691,8 +727,46 @@ function populateCustDropdown(type){
 }
 function renderSvcPills(type){const picker=document.getElementById(type+'-svc-picker');const pills=document.getElementById(type+'-svc-pills');if(!cache.services.length){picker.style.display='none';return;}picker.style.display='block';pills.innerHTML=cache.services.map(s=>{const name=(s.fields['Service Name']||'').replace(/'/g,"\\'");return`<span class="svc-pill" onclick="addLine('${type}','${name}',${s.fields['Price']||0})"><i class="ti ti-plus" style="font-size:10px"></i> ${s.fields['Service Name']||''}</span>`;}).join('');}
 function addLine(type,name='',price=''){const c=document.getElementById(type+'-lines');const row=document.createElement('div');row.className='line-row';const n=String(name).replace(/"/g,'&quot;');row.innerHTML=`<input placeholder="Service" value="${n}" oninput="calcTotal('${type}')"><input type="number" placeholder="1" min="1" value="1" oninput="calcTotal('${type}')"><input type="number" placeholder="0.00" value="${price}" min="0" step="0.01" oninput="calcTotal('${type}')"><button style="background:none;border:none;cursor:pointer;color:#999" onclick="this.closest('.line-row').remove();calcTotal('${type}')"><i class="ti ti-x" style="font-size:13px"></i></button>`;c.appendChild(row);calcTotal(type);}
-function resetLines(type){document.getElementById(type+'-lines').innerHTML='';document.getElementById(type+'-customer').value='';document.getElementById(type+'-notes').value='';document.getElementById(type+'-total').textContent='$0.00';addLine(type);}
-function calcTotal(type){let t=0;document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');t+=(parseFloat(i[1].value)||0)*(parseFloat(i[2].value)||0);});document.getElementById(type+'-total').textContent=fmt(t);}
+function resetLines(type){
+  document.getElementById(type+'-lines').innerHTML='';
+  document.getElementById(type+'-customer').value='';
+  document.getElementById(type+'-notes').value='';
+  document.getElementById(type+'-total').textContent='$0.00';
+  document.getElementById(type+'-subtotal').textContent='$0.00';
+  document.getElementById(type+'-tax').textContent='$0.00';
+  document.getElementById(type+'-discount-type').value='none';
+  document.getElementById(type+'-discount-value').value='';
+  document.getElementById(type+'-discount-value').style.display='none';
+  document.getElementById(type+'-discount-row').style.display='none';
+  addLine(type);
+}
+function calcTotal(type){
+  const TAX_RATE=0.08375;
+  let subtotal=0;
+  document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');subtotal+=(parseFloat(i[1].value)||0)*(parseFloat(i[2].value)||0);});
+  // Discount
+  const discType=document.getElementById(type+'-discount-type').value;
+  const discValEl=document.getElementById(type+'-discount-value');
+  const discRow=document.getElementById(type+'-discount-row');
+  const discLabel=document.getElementById(type+'-discount-label');
+  const discAmount=document.getElementById(type+'-discount-amount');
+  let discountDollars=0;
+  if(discType==='none'){discValEl.style.display='none';discRow.style.display='none';}
+  else{
+    discValEl.style.display='block';
+    const discVal=parseFloat(discValEl.value)||0;
+    if(discType==='percent'){discountDollars=subtotal*(discVal/100);discLabel.textContent=`Discount (${discVal}%)`;}
+    else{discountDollars=Math.min(discVal,subtotal);discLabel.textContent='Discount';}
+    discRow.style.display='flex';
+    discAmount.textContent='-'+fmt(discountDollars);
+  }
+  const afterDiscount=Math.max(0,subtotal-discountDollars);
+  const tax=afterDiscount*TAX_RATE;
+  const total=afterDiscount+tax;
+  document.getElementById(type+'-subtotal').textContent=fmt(subtotal);
+  document.getElementById(type+'-tax').textContent=fmt(tax);
+  document.getElementById(type+'-total').textContent=fmt(total);
+}
 function getLines(type){const lines=[];document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');const name=i[0].value.trim();if(name)lines.push({name,qty:parseFloat(i[1].value)||1,price:parseFloat(i[2].value)||0});});return lines;}
 function setBtns(ids,disabled){ids.forEach(id=>{const b=document.getElementById(id);if(b){b.disabled=disabled;b.style.opacity=disabled?'0.6':'1';}});}
 
@@ -938,7 +1012,7 @@ function filterJobs(filter,btn){
 async function saveDoc(type,status,generateLink=false){
   const custId=document.getElementById(type+'-customer').value;if(!custId){alert('Please select a customer.');return;}
   const lines=getLines(type);if(!lines.length){alert('Add at least one service.');return;}
-  const total=parseFloat(lines.reduce((s,l)=>s+l.qty*l.price,0).toFixed(2));
+  const total=parseFloat(document.getElementById(type+'-total').textContent.replace('$','').replace(',',''))||0;
   const cust=cache.customers.find(c=>c.id===custId);const custName=cust?cust.fields['Full Name']||'Unknown':'Unknown';
   const today=new Date().toISOString().slice(0,10);
   const btnIds=type==='quote'?['quote-draft-btn','quote-send-btn']:['invoice-save-btn','invoice-send-btn'];
@@ -1078,7 +1152,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v17-square-proxy');
+  console.log('v18-tax-discount');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
