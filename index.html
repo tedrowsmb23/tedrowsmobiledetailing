@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v21-logo -->
+<!-- v22-form-submit -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -571,7 +571,7 @@ async function submitPublicForm(formId,cfg){
   const notesVal=document.getElementById('pf-notes')?.value.trim()||'';
   const fields={'Full Name':name,'Phone':phone,'Vehicle':document.getElementById('pf-vehicle')?.value.trim()||'','Address':document.getElementById('pf-address')?.value.trim()||'','Notes':notesVal};
   try{
-    await fetch(`${AT_BASE}/${TABLES.customers}`,{method:'POST',headers:AT_HEADERS,body:JSON.stringify({records:[{fields}]})});
+    await fetch('/api/submit-form',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields})});
     document.getElementById('form-page-content').innerHTML=`<div class="quote-status-box">
       <div class="quote-status-icon">🚗</div>
       <div class="quote-status-title" style="color:#006064">${cfg.thankyou||"Thanks! We'll be in touch shortly."}</div>
@@ -1162,7 +1162,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v21-logo');
+  console.log('v22-form-submit');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
