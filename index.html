@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v4-final -->
+<!-- v5-address-appt -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,7 +9,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f4;color:#1a1a1a;min-height:100vh}
-/* ── APP STYLES ── */
 .app{display:flex;flex-direction:column;min-height:100vh}
 .topbar{display:flex;align-items:center;gap:10px;padding:12px 20px;background:#fff;border-bottom:1px solid #e5e5e3;position:sticky;top:0;z-index:5}
 .logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:#1a1a1a;flex-shrink:0}
@@ -106,7 +105,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .loading-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:300}
 .loading-screen i{font-size:32px;color:#00bcd4;animation:spin 1s linear infinite}
 .loading-screen p{font-size:14px;color:#666}
-/* ── CUSTOMER QUOTE PAGE ── */
 .quote-page{display:none;min-height:100vh;background:#f8f9fa;flex-direction:column}
 .quote-page.active{display:flex}
 .quote-header{background:#000;padding:20px;text-align:center}
@@ -154,24 +152,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
-
 <div class="loading-screen" id="loading-screen">
   <i class="ti ti-refresh"></i>
   <p>Loading Tedrow's Mobile Detailing...</p>
 </div>
-
-<!-- CUSTOMER QUOTE PAGE -->
 <div class="quote-page" id="quote-page">
-  <div class="quote-header">
-    <img src="Logo_FINAL.png" alt="Tedrow's Mobile Detailing">
-  </div>
-  <div class="quote-body">
-    <div id="quote-page-content"></div>
-  </div>
+  <div class="quote-header"><img src="Logo_FINAL.png" alt="Tedrow's Mobile Detailing"></div>
+  <div class="quote-body"><div id="quote-page-content"></div></div>
   <div class="quote-footer">Tedrow's Mobile Detailing · Clean · Protect · Preserve</div>
 </div>
-
-<!-- MAIN APP -->
 <div class="app" id="main-app">
   <div class="topbar">
     <div class="logo"><i class="ti ti-car"></i> Tedrow's</div>
@@ -227,8 +216,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
-
-<!-- Modals -->
 <div class="modal-backdrop" id="modal-customer">
   <div class="modal">
     <div class="modal-title" id="cust-modal-title">Add customer</div>
@@ -240,6 +227,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="form-group"><label class="form-label">Phone</label><input id="cust-phone" type="tel" placeholder="(914) 555-0100"></div>
     <div class="form-group"><label class="form-label">Email</label><input id="cust-email" type="email" placeholder="john@email.com"></div>
     <div class="form-group"><label class="form-label">Vehicle</label><input id="cust-vehicle" placeholder="2021 Toyota Camry"></div>
+    <div class="form-group"><label class="form-label">Address</label><input id="cust-address" placeholder="123 Main St, Yonkers NY 10701"></div>
+    <div class="form-group"><label class="form-label">Appointment date</label><input id="cust-appt" type="date"></div>
     <div class="form-group"><label class="form-label">Notes</label><textarea id="cust-notes" placeholder="Special requests..."></textarea></div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="closeModal('customer')">Cancel</button>
@@ -247,7 +236,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
-
 <div class="modal-backdrop" id="modal-service">
   <div class="modal">
     <div class="modal-title" id="svc-modal-title">Add service</div>
@@ -261,7 +249,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
-
 <div class="modal-backdrop" id="modal-quote">
   <div class="modal">
     <div class="modal-title">New quote</div>
@@ -286,7 +273,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
-
 <div class="modal-backdrop" id="modal-invoice">
   <div class="modal">
     <div class="modal-title">New invoice</div>
@@ -312,7 +298,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
-
 <div class="modal-backdrop" id="modal-view-customer">
   <div class="modal">
     <div class="modal-title" id="view-cust-name"></div>
@@ -324,7 +309,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
-
 <div class="modal-backdrop" id="modal-view-service">
   <div class="modal">
     <div class="modal-title" id="view-svc-title"></div>
@@ -336,7 +320,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
-
 <div class="modal-backdrop" id="modal-view-doc">
   <div class="modal">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -347,9 +330,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="modal-footer" id="view-doc-footer"></div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
 const AT_TOKEN='pataaV2WO4bTJ9Ei3.9b12449727bf7d6d6eda2b73a1925e7c748e439afaaee5f17e6874433f1ad512';
 const BASE_ID='apps2Jb1pPgwgn2CH';
@@ -361,36 +342,15 @@ const SQ_LOCATION='LZ4J6BBHSWBHW';
 const SQ_BASE='https://connect.squareup.com/v2';
 const SQ_HEADERS={'Authorization':'Bearer '+SQ_TOKEN,'Content-Type':'application/json','Square-Version':'2024-01-17'};
 const APP_URL='https://app.tedrowsmobiledetail.com';
-
 let cache={customers:[],services:[],quotes:[],invoices:[]};
 let viewingId={customer:null,service:null,doc:null,docType:null};
 let docFilter={quotes:'all',invoices:'all'};
-
 function fmt(n){return'$'+Number(n||0).toFixed(2);}
 function initials(name){const p=(name||'?').trim().split(' ');return((p[0]||'?')[0]+(p[p.length-1]||'?')[0]).toUpperCase();}
 function dateStr(d){if(!d)return'';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}catch(e){return d;}}
-
-function toast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),3000);
-}
-
-// ── ROUTING ──
-function getQueryParam(name){
-  return new URLSearchParams(window.location.search).get(name);
-}
-
-function checkRoute(){
-  const page=getQueryParam('page');
-  const id=getQueryParam('id');
-  if(page==='quote'&&id){
-    showQuotePage(id);
-    return true;
-  }
-  return false;
-}
-
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}
+function getQueryParam(name){return new URLSearchParams(window.location.search).get(name);}
+function checkRoute(){const page=getQueryParam('page');const id=getQueryParam('id');if(page==='quote'&&id){showQuotePage(id);return true;}return false;}
 async function showQuotePage(quoteId){
   document.getElementById('main-app').style.display='none';
   document.getElementById('loading-screen').style.display='none';
@@ -401,194 +361,62 @@ async function showQuotePage(quoteId){
     const r=await fetch(`${AT_BASE}/${TABLES.quotes}/${quoteId}`,{headers:AT_HEADERS});
     const rec=await r.json();
     if(rec.error){content.innerHTML=renderQuotePageError('Quote not found.');return;}
-    const f=rec.fields;
-    const status=f['Status']||'sent';
+    const f=rec.fields;const status=f['Status']||'sent';
     if(status==='approved'){content.innerHTML=renderQuotePageStatus('approved',f);return;}
     if(status==='declined'){content.innerHTML=renderQuotePageStatus('declined',f);return;}
     let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}
-    const serviceRows=lines.map(l=>`
-      <div class="quote-service-row">
-        <div class="quote-service-name">${l.name}${l.qty>1?` <span style="color:#999;font-size:12px">×${l.qty}</span>`:''}</div>
-        <div class="quote-service-price">${fmt(l.qty*l.price)}</div>
-      </div>`).join('');
+    const serviceRows=lines.map(l=>`<div class="quote-service-row"><div class="quote-service-name">${l.name}${l.qty>1?` <span style="color:#999;font-size:12px">×${l.qty}</span>`:''}</div><div class="quote-service-price">${fmt(l.qty*l.price)}</div></div>`).join('');
     content.innerHTML=`
-      <div class="quote-card">
-        <div class="quote-card-header">
-          <h2>Your Quote</h2>
-          <p>${f['Quote Number']||''} · ${dateStr(f['Date'])}</p>
-        </div>
-        <div class="quote-card-body">
-          <div class="quote-info-row"><span class="quote-info-label">Prepared for</span><span class="quote-info-value">${f['Customer Name']||''}</span></div>
-        </div>
-      </div>
-      <div class="quote-services">
-        <div class="quote-services-header">Services included</div>
-        ${serviceRows}
-        <div class="quote-total-bar">
-          <span class="quote-total-label">Total</span>
-          <span class="quote-total-amount">${fmt(f['Total'])}</span>
-        </div>
-      </div>
+      <div class="quote-card"><div class="quote-card-header"><h2>Your Quote</h2><p>${f['Quote Number']||''} · ${dateStr(f['Date'])}</p></div><div class="quote-card-body"><div class="quote-info-row"><span class="quote-info-label">Prepared for</span><span class="quote-info-value">${f['Customer Name']||''}</span></div></div></div>
+      <div class="quote-services"><div class="quote-services-header">Services included</div>${serviceRows}<div class="quote-total-bar"><span class="quote-total-label">Total</span><span class="quote-total-amount">${fmt(f['Total'])}</span></div></div>
       ${f['Notes']?`<div class="quote-notes-box"><div class="quote-notes-label">Notes from Tedrow's</div>${f['Notes']}</div>`:''}
-      <div class="quote-actions">
-        <button class="btn-approve" onclick="respondToQuote('${quoteId}','approved')">
-          <i class="ti ti-check"></i> Approve this quote
-        </button>
-        <button class="btn-decline" onclick="respondToQuote('${quoteId}','declined')">
-          Decline
-        </button>
-      </div>`;
-  }catch(e){content.innerHTML=renderQuotePageError('Something went wrong. Please try again.');}
+      <div class="quote-actions"><button class="btn-approve" onclick="respondToQuote('${quoteId}','approved')"><i class="ti ti-check"></i> Approve this quote</button><button class="btn-decline" onclick="respondToQuote('${quoteId}','declined')">Decline</button></div>`;
+  }catch(e){content.innerHTML=renderQuotePageError('Something went wrong.');}
 }
-
 function renderQuotePageStatus(status,f){
-  if(status==='approved'){
-    return`<div class="quote-status-box">
-      <div class="quote-status-icon">✅</div>
-      <div class="quote-status-title" style="color:#1b5e20">Quote Approved!</div>
-      <div class="quote-status-msg">Thank you! We've received your approval for ${f['Quote Number']||'your quote'}.<br><br>We'll be in touch shortly to schedule your service.</div>
-    </div>`;
-  }
-  return`<div class="quote-status-box">
-    <div class="quote-status-icon">❌</div>
-    <div class="quote-status-title" style="color:#991f1f">Quote Declined</div>
-    <div class="quote-status-msg">No problem at all! If you change your mind or have questions, don't hesitate to reach out to us.</div>
-  </div>`;
+  if(status==='approved')return`<div class="quote-status-box"><div class="quote-status-icon">✅</div><div class="quote-status-title" style="color:#1b5e20">Quote Approved!</div><div class="quote-status-msg">Thank you! We've received your approval for ${f['Quote Number']||'your quote'}.<br><br>We'll be in touch shortly to schedule your service.</div></div>`;
+  return`<div class="quote-status-box"><div class="quote-status-icon">❌</div><div class="quote-status-title" style="color:#991f1f">Quote Declined</div><div class="quote-status-msg">No problem at all! If you change your mind or have questions, don't hesitate to reach out.</div></div>`;
 }
-
-function renderQuotePageError(msg){
-  return`<div class="quote-status-box">
-    <div class="quote-status-icon">🔍</div>
-    <div class="quote-status-title">Quote not found</div>
-    <div class="quote-status-msg">${msg}</div>
-  </div>`;
-}
-
+function renderQuotePageError(msg){return`<div class="quote-status-box"><div class="quote-status-icon">🔍</div><div class="quote-status-title">Quote not found</div><div class="quote-status-msg">${msg}</div></div>`;}
 async function respondToQuote(quoteId,response){
-  const btn=document.querySelector('.btn-approve');
-  const decBtn=document.querySelector('.btn-decline');
-  if(btn)btn.disabled=true;
-  if(decBtn)decBtn.disabled=true;
-  try{
-    await fetch(`${AT_BASE}/${TABLES.quotes}/${quoteId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields:{Status:response}})});
-    const f={};
-    document.getElementById('quote-page-content').innerHTML=renderQuotePageStatus(response,f);
-  }catch(e){
-    document.getElementById('quote-page-content').innerHTML=renderQuotePageError('Could not save your response. Please try again.');
-  }
+  const btn=document.querySelector('.btn-approve');const decBtn=document.querySelector('.btn-decline');
+  if(btn)btn.disabled=true;if(decBtn)decBtn.disabled=true;
+  try{await fetch(`${AT_BASE}/${TABLES.quotes}/${quoteId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields:{Status:response}})});document.getElementById('quote-page-content').innerHTML=renderQuotePageStatus(response,{});}
+  catch(e){document.getElementById('quote-page-content').innerHTML=renderQuotePageError('Could not save your response. Please try again.');}
 }
-
-// ── AIRTABLE ──
 async function atList(tableId){
   let all=[],offset='';
-  do{
-    const url=`${AT_BASE}/${tableId}?pageSize=100${offset?'&offset='+offset:''}`;
-    const r=await fetch(url,{headers:AT_HEADERS});
-    const d=await r.json();
-    if(d.error)throw new Error(d.error.message);
-    all=all.concat(d.records||[]);
-    offset=d.offset||'';
-  }while(offset);
+  do{const url=`${AT_BASE}/${tableId}?pageSize=100${offset?'&offset='+offset:''}`;const r=await fetch(url,{headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);all=all.concat(d.records||[]);offset=d.offset||'';}while(offset);
   return all;
 }
-async function atCreate(tableId,fields){
-  const r=await fetch(`${AT_BASE}/${tableId}`,{method:'POST',headers:AT_HEADERS,body:JSON.stringify({records:[{fields}]})});
-  const d=await r.json();
-  if(d.error)throw new Error(d.error.message);
-  return d.records[0];
-}
-async function atUpdate(tableId,recordId,fields){
-  const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields})});
-  const d=await r.json();
-  if(d.error)throw new Error(d.error.message);
-  return d;
-}
-async function atDelete(tableId,recordId){
-  const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'DELETE',headers:AT_HEADERS});
-  const d=await r.json();
-  if(d.error)throw new Error(d.error.message);
-}
-
-// ── SQUARE ──
+async function atCreate(tableId,fields){const r=await fetch(`${AT_BASE}/${tableId}`,{method:'POST',headers:AT_HEADERS,body:JSON.stringify({records:[{fields}]})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d.records[0];}
+async function atUpdate(tableId,recordId,fields){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d;}
+async function atDelete(tableId,recordId){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'DELETE',headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);}
 async function generateSquarePaymentLink(invoiceNum,totalDollars){
-  try{
-    const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION}};
-    const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});
-    const d=await r.json();
-    if(d.errors&&d.errors.length)return null;
-    return d.payment_link?.url||null;
-  }catch(e){return null;}
+  try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION}};const r=await fetch(`${SQ_BASE}/online-checkout/payment-links`,{method:'POST',headers:SQ_HEADERS,body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}
 }
-
 async function syncAll(){
-  const btn=document.getElementById('sync-btn');
-  btn.classList.add('syncing');
-  try{
-    const[c,s,q,i]=await Promise.all([atList(TABLES.customers),atList(TABLES.services),atList(TABLES.quotes),atList(TABLES.invoices)]);
-    cache.customers=c;cache.services=s;cache.quotes=q;cache.invoices=i;
-    renderAll();toast('Synced!');
-  }catch(e){toast('Sync error: '+e.message);}
+  const btn=document.getElementById('sync-btn');btn.classList.add('syncing');
+  try{const[c,s,q,i]=await Promise.all([atList(TABLES.customers),atList(TABLES.services),atList(TABLES.quotes),atList(TABLES.invoices)]);cache.customers=c;cache.services=s;cache.quotes=q;cache.invoices=i;renderAll();toast('Synced!');}
+  catch(e){toast('Sync error: '+e.message);}
   btn.classList.remove('syncing');
 }
-
-function showSection(s){
-  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById('section-'+s).classList.add('active');
-  document.getElementById('nav-'+s).classList.add('active');
-}
-function openModal(name){
-  if(name==='quote'||name==='invoice'){populateCustDropdown(name);renderSvcPills(name);}
-  if(name==='quote')resetLines('quote');
-  if(name==='invoice')resetLines('invoice');
-  document.getElementById('modal-'+name).classList.add('open');
-}
+function showSection(s){document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));document.getElementById('section-'+s).classList.add('active');document.getElementById('nav-'+s).classList.add('active');}
+function openModal(name){if(name==='quote'||name==='invoice'){populateCustDropdown(name);renderSvcPills(name);}if(name==='quote')resetLines('quote');if(name==='invoice')resetLines('invoice');document.getElementById('modal-'+name).classList.add('open');}
 function closeModal(name){document.getElementById('modal-'+name).classList.remove('open');}
-function populateCustDropdown(type){
-  const sel=document.getElementById(type+'-customer');
-  sel.innerHTML='<option value="">Select customer...</option>';
-  cache.customers.forEach(c=>{const f=c.fields;const o=document.createElement('option');o.value=c.id;o.textContent=(f['Full Name']||'Unknown')+(f['Vehicle']?' — '+f['Vehicle']:'');sel.appendChild(o);});
-}
-function renderSvcPills(type){
-  const picker=document.getElementById(type+'-svc-picker');
-  const pills=document.getElementById(type+'-svc-pills');
-  if(!cache.services.length){picker.style.display='none';return;}
-  picker.style.display='block';
-  pills.innerHTML=cache.services.map(s=>{const name=(s.fields['Service Name']||'').replace(/'/g,"\\'");return`<span class="svc-pill" onclick="addLine('${type}','${name}',${s.fields['Price']||0})"><i class="ti ti-plus" style="font-size:10px"></i> ${s.fields['Service Name']||''}</span>`;}).join('');
-}
-function addLine(type,name='',price=''){
-  const c=document.getElementById(type+'-lines');
-  const row=document.createElement('div');row.className='line-row';
-  const n=String(name).replace(/"/g,'&quot;');
-  row.innerHTML=`<input placeholder="Service" value="${n}" oninput="calcTotal('${type}')"><input type="number" placeholder="1" min="1" value="1" oninput="calcTotal('${type}')"><input type="number" placeholder="0.00" value="${price}" min="0" step="0.01" oninput="calcTotal('${type}')"><button style="background:none;border:none;cursor:pointer;color:#999" onclick="this.closest('.line-row').remove();calcTotal('${type}')"><i class="ti ti-x" style="font-size:13px"></i></button>`;
-  c.appendChild(row);calcTotal(type);
-}
-function resetLines(type){
-  document.getElementById(type+'-lines').innerHTML='';
-  document.getElementById(type+'-customer').value='';
-  document.getElementById(type+'-notes').value='';
-  document.getElementById(type+'-total').textContent='$0.00';
-  addLine(type);
-}
-function calcTotal(type){
-  let t=0;
-  document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');t+=(parseFloat(i[1].value)||0)*(parseFloat(i[2].value)||0);});
-  document.getElementById(type+'-total').textContent=fmt(t);
-}
-function getLines(type){
-  const lines=[];
-  document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');const name=i[0].value.trim();if(name)lines.push({name,qty:parseFloat(i[1].value)||1,price:parseFloat(i[2].value)||0});});
-  return lines;
-}
+function populateCustDropdown(type){const sel=document.getElementById(type+'-customer');sel.innerHTML='<option value="">Select customer...</option>';cache.customers.forEach(c=>{const f=c.fields;const o=document.createElement('option');o.value=c.id;o.textContent=(f['Full Name']||'Unknown')+(f['Vehicle']?' — '+f['Vehicle']:'');sel.appendChild(o);});}
+function renderSvcPills(type){const picker=document.getElementById(type+'-svc-picker');const pills=document.getElementById(type+'-svc-pills');if(!cache.services.length){picker.style.display='none';return;}picker.style.display='block';pills.innerHTML=cache.services.map(s=>{const name=(s.fields['Service Name']||'').replace(/'/g,"\\'");return`<span class="svc-pill" onclick="addLine('${type}','${name}',${s.fields['Price']||0})"><i class="ti ti-plus" style="font-size:10px"></i> ${s.fields['Service Name']||''}</span>`;}).join('');}
+function addLine(type,name='',price=''){const c=document.getElementById(type+'-lines');const row=document.createElement('div');row.className='line-row';const n=String(name).replace(/"/g,'&quot;');row.innerHTML=`<input placeholder="Service" value="${n}" oninput="calcTotal('${type}')"><input type="number" placeholder="1" min="1" value="1" oninput="calcTotal('${type}')"><input type="number" placeholder="0.00" value="${price}" min="0" step="0.01" oninput="calcTotal('${type}')"><button style="background:none;border:none;cursor:pointer;color:#999" onclick="this.closest('.line-row').remove();calcTotal('${type}')"><i class="ti ti-x" style="font-size:13px"></i></button>`;c.appendChild(row);calcTotal(type);}
+function resetLines(type){document.getElementById(type+'-lines').innerHTML='';document.getElementById(type+'-customer').value='';document.getElementById(type+'-notes').value='';document.getElementById(type+'-total').textContent='$0.00';addLine(type);}
+function calcTotal(type){let t=0;document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');t+=(parseFloat(i[1].value)||0)*(parseFloat(i[2].value)||0);});document.getElementById(type+'-total').textContent=fmt(t);}
+function getLines(type){const lines=[];document.querySelectorAll('#'+type+'-lines .line-row').forEach(r=>{const i=r.querySelectorAll('input');const name=i[0].value.trim();if(name)lines.push({name,qty:parseFloat(i[1].value)||1,price:parseFloat(i[2].value)||0});});return lines;}
 function setBtns(ids,disabled){ids.forEach(id=>{const b=document.getElementById(id);if(b){b.disabled=disabled;b.style.opacity=disabled?'0.6':'1';}});}
-
 async function saveCustomer(){
   const editId=document.getElementById('cust-edit-id').value;
-  const first=document.getElementById('cust-first').value.trim();
-  const last=document.getElementById('cust-last').value.trim();
+  const first=document.getElementById('cust-first').value.trim();const last=document.getElementById('cust-last').value.trim();
   if(!first&&!last){alert('Please enter a name.');return;}
   setBtns(['cust-save-btn'],true);
-  const fields={'Full Name':(first+' '+last).trim(),'Phone':document.getElementById('cust-phone').value.trim(),'Email':document.getElementById('cust-email').value.trim(),'Vehicle':document.getElementById('cust-vehicle').value.trim(),'Notes':document.getElementById('cust-notes').value.trim()};
+  const fields={'Full Name':(first+' '+last).trim(),'Phone':document.getElementById('cust-phone').value.trim(),'Email':document.getElementById('cust-email').value.trim(),'Vehicle':document.getElementById('cust-vehicle').value.trim(),'Address':document.getElementById('cust-address').value.trim(),'Appointment Date':document.getElementById('cust-appt').value||null,'Notes':document.getElementById('cust-notes').value.trim()};
   try{
     if(editId){await atUpdate(TABLES.customers,editId,fields);const idx=cache.customers.findIndex(c=>c.id===editId);if(idx>-1)cache.customers[idx].fields={...cache.customers[idx].fields,...fields};toast('Customer updated!');}
     else{const rec=await atCreate(TABLES.customers,fields);cache.customers.push(rec);toast('Customer saved!');}
@@ -597,9 +425,8 @@ async function saveCustomer(){
   setBtns(['cust-save-btn'],false);
 }
 function clearCustForm(){
-  ['cust-first','cust-last','cust-phone','cust-email','cust-vehicle','cust-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('cust-edit-id').value='';
-  document.getElementById('cust-modal-title').textContent='Add customer';
+  ['cust-first','cust-last','cust-phone','cust-email','cust-vehicle','cust-address','cust-appt','cust-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cust-edit-id').value='';document.getElementById('cust-modal-title').textContent='Add customer';
 }
 function viewCustomer(id){
   const c=cache.customers.find(x=>x.id===id);if(!c)return;
@@ -613,6 +440,8 @@ function viewCustomer(id){
       ${f['Phone']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-phone" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Phone</td><td style="text-align:right">${f['Phone']}</td></tr>`:''}
       ${f['Email']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-mail" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Email</td><td style="text-align:right;color:#00838f">${f['Email']}</td></tr>`:''}
       ${f['Vehicle']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-car" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Vehicle</td><td style="text-align:right">${f['Vehicle']}</td></tr>`:''}
+      ${f['Address']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-map-pin" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Address</td><td style="text-align:right">${f['Address']}</td></tr>`:''}
+      ${f['Appointment Date']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-calendar" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Appointment</td><td style="text-align:right">${dateStr(f['Appointment Date'])}</td></tr>`:''}
     </table>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
       <div class="stat"><div class="stat-label">Quotes</div><div class="stat-value" style="font-size:18px">${cq}</div></div>
@@ -624,26 +453,22 @@ function viewCustomer(id){
 }
 function editCustomer(){
   const c=cache.customers.find(x=>x.id===viewingId.customer);if(!c)return;
-  closeModal('view-customer');const f=c.fields;
-  const parts=(f['Full Name']||'').split(' ');
+  closeModal('view-customer');const f=c.fields;const parts=(f['Full Name']||'').split(' ');
   document.getElementById('cust-edit-id').value=c.id;
   document.getElementById('cust-first').value=parts[0]||'';
   document.getElementById('cust-last').value=parts.slice(1).join(' ')||'';
   document.getElementById('cust-phone').value=f['Phone']||'';
   document.getElementById('cust-email').value=f['Email']||'';
   document.getElementById('cust-vehicle').value=f['Vehicle']||'';
+  document.getElementById('cust-address').value=f['Address']||'';
+  document.getElementById('cust-appt').value=f['Appointment Date']||'';
   document.getElementById('cust-notes').value=f['Notes']||'';
   document.getElementById('cust-modal-title').textContent='Edit customer';
   openModal('customer');
 }
-async function deleteCustomer(){
-  if(!confirm('Delete this customer?'))return;
-  try{await atDelete(TABLES.customers,viewingId.customer);cache.customers=cache.customers.filter(x=>x.id!==viewingId.customer);toast('Deleted');closeModal('view-customer');renderAll();}
-  catch(e){toast('Error: '+e.message);}
-}
+async function deleteCustomer(){if(!confirm('Delete this customer?'))return;try{await atDelete(TABLES.customers,viewingId.customer);cache.customers=cache.customers.filter(x=>x.id!==viewingId.customer);toast('Deleted');closeModal('view-customer');renderAll();}catch(e){toast('Error: '+e.message);}}
 async function saveService(){
-  const editId=document.getElementById('svc-edit-id').value;
-  const name=document.getElementById('svc-name').value.trim();
+  const editId=document.getElementById('svc-edit-id').value;const name=document.getElementById('svc-name').value.trim();
   if(!name){alert('Please enter a service name.');return;}
   setBtns(['svc-save-btn'],true);
   const fields={'Service Name':name,'Description':document.getElementById('svc-desc').value.trim(),'Price':parseFloat(document.getElementById('svc-price').value)||0};
@@ -654,87 +479,34 @@ async function saveService(){
   }catch(e){toast('Error: '+e.message);}
   setBtns(['svc-save-btn'],false);
 }
-function clearSvcForm(){
-  ['svc-name','svc-desc','svc-price'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('svc-edit-id').value='';
-  document.getElementById('svc-modal-title').textContent='Add service';
-}
-function viewService(id){
-  const s=cache.services.find(x=>x.id===id);if(!s)return;
-  viewingId.service=id;const f=s.fields;
-  document.getElementById('view-svc-title').textContent=f['Service Name']||'';
-  document.getElementById('view-svc-body').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <span style="font-size:22px;font-weight:600">${fmt(f['Price'])}</span>
-      <span style="font-size:12px;color:#666">default price</span>
-    </div>
-    ${f['Description']?`<div style="font-size:13px;color:#666;background:#f5f5f4;border-radius:8px;padding:10px;line-height:1.6">${f['Description']}</div>`:'<p style="font-size:13px;color:#999">No description.</p>'}`;
-  openModal('view-service');
-}
-function editService(){
-  const s=cache.services.find(x=>x.id===viewingId.service);if(!s)return;
-  closeModal('view-service');const f=s.fields;
-  document.getElementById('svc-edit-id').value=s.id;
-  document.getElementById('svc-name').value=f['Service Name']||'';
-  document.getElementById('svc-desc').value=f['Description']||'';
-  document.getElementById('svc-price').value=f['Price']||'';
-  document.getElementById('svc-modal-title').textContent='Edit service';
-  openModal('service');
-}
-async function deleteService(){
-  if(!confirm('Delete this service?'))return;
-  try{await atDelete(TABLES.services,viewingId.service);cache.services=cache.services.filter(x=>x.id!==viewingId.service);toast('Deleted');closeModal('view-service');renderAll();}
-  catch(e){toast('Error: '+e.message);}
-}
-
+function clearSvcForm(){['svc-name','svc-desc','svc-price'].forEach(id=>document.getElementById(id).value='');document.getElementById('svc-edit-id').value='';document.getElementById('svc-modal-title').textContent='Add service';}
+function viewService(id){const s=cache.services.find(x=>x.id===id);if(!s)return;viewingId.service=id;const f=s.fields;document.getElementById('view-svc-title').textContent=f['Service Name']||'';document.getElementById('view-svc-body').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:22px;font-weight:600">${fmt(f['Price'])}</span><span style="font-size:12px;color:#666">default price</span></div>${f['Description']?`<div style="font-size:13px;color:#666;background:#f5f5f4;border-radius:8px;padding:10px;line-height:1.6">${f['Description']}</div>`:'<p style="font-size:13px;color:#999">No description.</p>'}`;openModal('view-service');}
+function editService(){const s=cache.services.find(x=>x.id===viewingId.service);if(!s)return;closeModal('view-service');const f=s.fields;document.getElementById('svc-edit-id').value=s.id;document.getElementById('svc-name').value=f['Service Name']||'';document.getElementById('svc-desc').value=f['Description']||'';document.getElementById('svc-price').value=f['Price']||'';document.getElementById('svc-modal-title').textContent='Edit service';openModal('service');}
+async function deleteService(){if(!confirm('Delete this service?'))return;try{await atDelete(TABLES.services,viewingId.service);cache.services=cache.services.filter(x=>x.id!==viewingId.service);toast('Deleted');closeModal('view-service');renderAll();}catch(e){toast('Error: '+e.message);}}
 async function saveDoc(type,status,generateLink=false){
-  const custId=document.getElementById(type+'-customer').value;
-  if(!custId){alert('Please select a customer.');return;}
-  const lines=getLines(type);
-  if(!lines.length){alert('Add at least one service.');return;}
+  const custId=document.getElementById(type+'-customer').value;if(!custId){alert('Please select a customer.');return;}
+  const lines=getLines(type);if(!lines.length){alert('Add at least one service.');return;}
   const total=parseFloat(lines.reduce((s,l)=>s+l.qty*l.price,0).toFixed(2));
-  const cust=cache.customers.find(c=>c.id===custId);
-  const custName=cust?cust.fields['Full Name']||'Unknown':'Unknown';
+  const cust=cache.customers.find(c=>c.id===custId);const custName=cust?cust.fields['Full Name']||'Unknown':'Unknown';
   const today=new Date().toISOString().slice(0,10);
   const btnIds=type==='quote'?['quote-draft-btn','quote-send-btn']:['invoice-save-btn','invoice-send-btn'];
   setBtns(btnIds,true);
   let squareLink='';
-  if(type==='invoice'&&generateLink){
-    toast('Generating Square payment link...');
-    const num='INV-'+String(cache.invoices.length+1).padStart(3,'0');
-    squareLink=await generateSquarePaymentLink(num,total)||'';
-    if(squareLink)toast('Payment link generated!');
-  }
+  if(type==='invoice'&&generateLink){toast('Generating Square payment link...');const num='INV-'+String(cache.invoices.length+1).padStart(3,'0');squareLink=await generateSquarePaymentLink(num,total)||'';if(squareLink)toast('Payment link generated!');}
   let fields;
-  if(type==='quote'){
-    const num='Q-'+String(cache.quotes.length+1).padStart(3,'0');
-    fields={'Quote Number':num,'Customer Name':custName,'Customer ID':custId,'Line Items':JSON.stringify(lines),'Total':total,'Notes':document.getElementById('quote-notes').value.trim(),'Status':status,'Date':today};
-  }else{
-    const num='INV-'+String(cache.invoices.length+1).padStart(3,'0');
-    fields={'Invoice Number':num,'Customer Name':custName,'Customer ID':custId,'Line Items':JSON.stringify(lines),'Total':total,'Notes':document.getElementById('invoice-notes').value.trim(),'Square Payment Link':squareLink,'Status':status,'Date':today};
-  }
-  try{
-    const rec=await atCreate(type==='quote'?TABLES.quotes:TABLES.invoices,fields);
-    if(type==='quote')cache.quotes.push(rec);else cache.invoices.push(rec);
-    toast((type==='quote'?'Quote':'Invoice')+' saved!');
-    closeModal(type);renderAll();
-    viewDoc(type,rec.id);
-  }catch(e){toast('Error: '+e.message);}
+  if(type==='quote'){const num='Q-'+String(cache.quotes.length+1).padStart(3,'0');fields={'Quote Number':num,'Customer Name':custName,'Customer ID':custId,'Line Items':JSON.stringify(lines),'Total':total,'Notes':document.getElementById('quote-notes').value.trim(),'Status':status,'Date':today};}
+  else{const num='INV-'+String(cache.invoices.length+1).padStart(3,'0');fields={'Invoice Number':num,'Customer Name':custName,'Customer ID':custId,'Line Items':JSON.stringify(lines),'Total':total,'Notes':document.getElementById('invoice-notes').value.trim(),'Square Payment Link':squareLink,'Status':status,'Date':today};}
+  try{const rec=await atCreate(type==='quote'?TABLES.quotes:TABLES.invoices,fields);if(type==='quote')cache.quotes.push(rec);else cache.invoices.push(rec);toast((type==='quote'?'Quote':'Invoice')+' saved!');closeModal(type);renderAll();viewDoc(type,rec.id);}
+  catch(e){toast('Error: '+e.message);}
   setBtns(btnIds,false);
 }
-
 function getQuoteLink(quoteId){return`${APP_URL}?page=quote&id=${quoteId}`;}
-
 function buildSms(doc,type,cust){
   const f=doc.fields;const cf=cust?cust.fields:{};
   let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}
   const items=lines.map(l=>`• ${l.name}${l.qty>1?' x'+l.qty:''} — ${fmt(l.qty*l.price)}`).join('\n');
-  const v=cf['Vehicle']?` for your ${cf['Vehicle']}`:'';
-  const fn=(cf['Full Name']||'there').split(' ')[0];
-  if(type==='quote'){
-    const link=getQuoteLink(doc.id);
-    return`Hi ${fn}! Here's your quote from Tedrow's Mobile Detailing${v}:\n\n${items}\n\nTotal: ${fmt(f['Total'])}\n\nView & approve your quote here:\n${link}${f['Notes']?'\n\n'+f['Notes']:''}`;
-  }
+  const v=cf['Vehicle']?` for your ${cf['Vehicle']}`:'';const fn=(cf['Full Name']||'there').split(' ')[0];
+  if(type==='quote'){const link=getQuoteLink(doc.id);return`Hi ${fn}! Here's your quote from Tedrow's Mobile Detailing${v}:\n\n${items}\n\nTotal: ${fmt(f['Total'])}\n\nView & approve your quote here:\n${link}${f['Notes']?'\n\n'+f['Notes']:''}`;}
   const pay=f['Square Payment Link']?`\n\nPay securely here: ${f['Square Payment Link']}`:'';
   return`Hi ${fn}! Your invoice from Tedrow's Mobile Detailing (${f['Invoice Number']})${v}:\n\n${items}\n\nTotal: ${fmt(f['Total'])}${f['Notes']?'\n\n'+f['Notes']:''}${pay}`;
 }
@@ -742,74 +514,21 @@ function buildEmail(doc,type,cust){
   const f=doc.fields;const cf=cust?cust.fields:{};
   let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}
   const items=lines.map(l=>`  • ${l.name}${l.qty>1?' x'+l.qty:''} — ${fmt(l.qty*l.price)}`).join('\n');
-  const v=cf['Vehicle']?` for your ${cf['Vehicle']}`:'';
-  const fn=(cf['Full Name']||'there').split(' ')[0];
-  if(type==='quote'){
-    const link=getQuoteLink(doc.id);
-    return`Hi ${fn},\n\nThank you for your interest! Here is your quote${v}:\n\n${items}\n\nTotal: ${fmt(f['Total'])}\n\nView and approve your quote online:\n${link}${f['Notes']?'\n\nNotes: '+f['Notes']:''}\n\nThanks,\nTedrow's Mobile Detailing\nClean · Protect · Preserve`;
-  }
+  const v=cf['Vehicle']?` for your ${cf['Vehicle']}`:'';const fn=(cf['Full Name']||'there').split(' ')[0];
+  if(type==='quote'){const link=getQuoteLink(doc.id);return`Hi ${fn},\n\nThank you for your interest! Here is your quote${v}:\n\n${items}\n\nTotal: ${fmt(f['Total'])}\n\nView and approve your quote online:\n${link}${f['Notes']?'\n\nNotes: '+f['Notes']:''}\n\nThanks,\nTedrow's Mobile Detailing\nClean · Protect · Preserve`;}
   const pay=f['Square Payment Link']?`\n\nPay securely online: ${f['Square Payment Link']}`:'';
   return`Hi ${fn},\n\nHere is your invoice (${f['Invoice Number']})${v}:\n\n${items}\n\nTotal Due: ${fmt(f['Total'])}${f['Notes']?'\n\nNotes: '+f['Notes']:''}${pay}\n\nThank you for your business!\nTedrow's Mobile Detailing\nClean · Protect · Preserve`;
 }
-function sendSms(docId,type){
-  const list=type==='quote'?cache.quotes:cache.invoices;
-  const doc=list.find(d=>d.id===docId);if(!doc)return;
-  const cust=cache.customers.find(c=>c.id===doc.fields['Customer ID']);
-  const phone=((cust&&cust.fields['Phone'])||'').replace(/\D/g,'');
-  window.location.href=`sms:${phone}${phone?'&':'?'}body=${encodeURIComponent(buildSms(doc,type,cust))}`;
-}
-function sendEmail(docId,type){
-  const list=type==='quote'?cache.quotes:cache.invoices;
-  const doc=list.find(d=>d.id===docId);if(!doc)return;
-  const cust=cache.customers.find(c=>c.id===doc.fields['Customer ID']);
-  const email=(cust&&cust.fields['Email'])||'';
-  const f=doc.fields;
-  const subj=type==='quote'?`Your quote from Tedrow's Mobile Detailing — ${fmt(f['Total'])}`:`Invoice ${f['Invoice Number']} from Tedrow's Mobile Detailing — ${fmt(f['Total'])}`;
-  window.location.href=`mailto:${email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(buildEmail(doc,type,cust))}`;
-}
-async function deleteDoc(type,id){
-  if(!confirm('Delete this '+(type==='quote'?'quote':'invoice')+'? This cannot be undone.'))return;
-  try{
-    await atDelete(type==='quote'?TABLES.quotes:TABLES.invoices,id);
-    if(type==='quote')cache.quotes=cache.quotes.filter(d=>d.id!==id);
-    else cache.invoices=cache.invoices.filter(d=>d.id!==id);
-    toast((type==='quote'?'Quote':'Invoice')+' deleted');
-    closeModal('view-doc');renderAll();
-  }catch(e){toast('Error: '+e.message);}
-}
-async function markStatus(docId,type,status){
-  try{
-    await atUpdate(type==='quote'?TABLES.quotes:TABLES.invoices,docId,{'Status':status});
-    const list=type==='quote'?cache.quotes:cache.invoices;
-    const doc=list.find(d=>d.id===docId);if(doc)doc.fields['Status']=status;
-    toast(status==='approved'?'Quote approved!':status==='paid'?'Invoice marked paid!':'Updated!');
-    renderAll();closeModal('view-doc');
-  }catch(e){toast('Error: '+e.message);}
-}
-async function generateLinkForExisting(docId){
-  const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;
-  const f=inv.fields;
-  toast('Generating Square payment link...');
-  const link=await generateSquarePaymentLink(f['Invoice Number']||docId,f['Total']||0);
-  if(!link){toast('Could not generate link');return;}
-  try{
-    await atUpdate(TABLES.invoices,docId,{'Square Payment Link':link});
-    inv.fields['Square Payment Link']=link;
-    toast('Payment link added!');viewDoc('invoice',docId);
-  }catch(e){toast('Error: '+e.message);}
-}
-function filterDocs(type,filter,btn){
-  docFilter[type]=filter;
-  btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  type==='quotes'?renderQuotes():renderInvoices();
-}
+function sendSms(docId,type){const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===docId);if(!doc)return;const cust=cache.customers.find(c=>c.id===doc.fields['Customer ID']);const phone=((cust&&cust.fields['Phone'])||'').replace(/\D/g,'');window.location.href=`sms:${phone}${phone?'&':'?'}body=${encodeURIComponent(buildSms(doc,type,cust))}`;}
+function sendEmail(docId,type){const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===docId);if(!doc)return;const cust=cache.customers.find(c=>c.id===doc.fields['Customer ID']);const email=(cust&&cust.fields['Email'])||'';const f=doc.fields;const subj=type==='quote'?`Your quote from Tedrow's Mobile Detailing — ${fmt(f['Total'])}`:`Invoice ${f['Invoice Number']} from Tedrow's Mobile Detailing — ${fmt(f['Total'])}`;window.location.href=`mailto:${email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(buildEmail(doc,type,cust))}`;}
+async function deleteDoc(type,id){if(!confirm('Delete this '+(type==='quote'?'quote':'invoice')+'? This cannot be undone.'))return;try{await atDelete(type==='quote'?TABLES.quotes:TABLES.invoices,id);if(type==='quote')cache.quotes=cache.quotes.filter(d=>d.id!==id);else cache.invoices=cache.invoices.filter(d=>d.id!==id);toast((type==='quote'?'Quote':'Invoice')+' deleted');closeModal('view-doc');renderAll();}catch(e){toast('Error: '+e.message);}}
+async function markStatus(docId,type,status){try{await atUpdate(type==='quote'?TABLES.quotes:TABLES.invoices,docId,{'Status':status});const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===docId);if(doc)doc.fields['Status']=status;toast(status==='approved'?'Quote approved!':status==='paid'?'Invoice marked paid!':'Updated!');renderAll();closeModal('view-doc');}catch(e){toast('Error: '+e.message);}}
+async function generateLinkForExisting(docId){const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;const f=inv.fields;toast('Generating Square payment link...');const link=await generateSquarePaymentLink(f['Invoice Number']||docId,f['Total']||0);if(!link){toast('Could not generate link');return;}try{await atUpdate(TABLES.invoices,docId,{'Square Payment Link':link});inv.fields['Square Payment Link']=link;toast('Payment link added!');viewDoc('invoice',docId);}catch(e){toast('Error: '+e.message);}}
+function filterDocs(type,filter,btn){docFilter[type]=filter;btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');type==='quotes'?renderQuotes():renderInvoices();}
 function viewDoc(type,id){
-  const list=type==='quote'?cache.quotes:cache.invoices;
-  const doc=list.find(d=>d.id===id);if(!doc)return;
+  const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===id);if(!doc)return;
   viewingId.doc=id;viewingId.docType=type;
-  const f=doc.fields;const num=f['Quote Number']||f['Invoice Number']||'';
-  const status=f['Status']||'draft';
+  const f=doc.fields;const num=f['Quote Number']||f['Invoice Number']||'';const status=f['Status']||'draft';
   document.getElementById('view-doc-title').textContent=num;
   const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft',pending:'badge-pending',paid:'badge-paid'};
   document.getElementById('view-doc-badge').innerHTML=`<span class="badge ${bm[status]||'badge-draft'}">${status}</span>`;
@@ -817,34 +536,15 @@ function viewDoc(type,id){
   let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}
   const rows=lines.map(l=>`<tr><td style="padding:5px 0;font-size:13px">${l.name}</td><td style="text-align:center;padding:5px 0;font-size:13px">${l.qty}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.price)}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.qty*l.price)}</td></tr>`).join('');
   let quoteLinkHtml='';
-  if(type==='quote'&&status==='sent'){
-    const qLink=getQuoteLink(id);
-    quoteLinkHtml=`<div class="quote-link-box">
-      <div class="quote-link-label"><i class="ti ti-link"></i> Customer approval link</div>
-      <div class="quote-link-url">${qLink}</div>
-      <button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${qLink}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy link</button>
-    </div>`;
-  }
+  if(type==='quote'&&status==='sent'){const qLink=getQuoteLink(id);quoteLinkHtml=`<div class="quote-link-box"><div class="quote-link-label"><i class="ti ti-link"></i> Customer approval link</div><div class="quote-link-url">${qLink}</div><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${qLink}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy link</button></div>`;}
   let payLinkHtml='';
-  if(type==='invoice'){
-    if(f['Square Payment Link']){
-      payLinkHtml=`<div class="pay-link-box"><div class="pay-link-label"><i class="ti ti-brand-square"></i> Square payment link</div><div class="pay-link-url">${f['Square Payment Link']}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${f['Square Payment Link']}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy</button><a href="${f['Square Payment Link']}" target="_blank" class="btn-square btn-sm" style="text-decoration:none"><i class="ti ti-external-link"></i> Open</a></div></div>`;
-    }else{
-      payLinkHtml=`<div style="background:#f5f5f4;border-radius:8px;padding:12px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#666">No payment link yet</span><button class="btn-square btn-sm" onclick="generateLinkForExisting('${id}')"><i class="ti ti-brand-square"></i> Generate Square link</button></div>`;
-    }
-  }
+  if(type==='invoice'){if(f['Square Payment Link']){payLinkHtml=`<div class="pay-link-box"><div class="pay-link-label"><i class="ti ti-brand-square"></i> Square payment link</div><div class="pay-link-url">${f['Square Payment Link']}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${f['Square Payment Link']}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy</button><a href="${f['Square Payment Link']}" target="_blank" class="btn-square btn-sm" style="text-decoration:none"><i class="ti ti-external-link"></i> Open</a></div></div>`;}else{payLinkHtml=`<div style="background:#f5f5f4;border-radius:8px;padding:12px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#666">No payment link yet</span><button class="btn-square btn-sm" onclick="generateLinkForExisting('${id}')"><i class="ti ti-brand-square"></i> Generate Square link</button></div>`;}}
   const hasSms=cust&&cust.fields['Phone'];const hasEmail=cust&&cust.fields['Email'];
   const sendPanel=(hasSms||hasEmail)?`<div class="send-box"><div class="send-box-label">Send to ${f['Customer Name']||'customer'}</div><div class="send-btns">${hasSms?`<button class="btn-sms btn-sm" onclick="sendSms('${id}','${type}')"><i class="ti ti-message"></i> Text</button>`:''} ${hasEmail?`<button class="btn-email btn-sm" onclick="sendEmail('${id}','${type}')"><i class="ti ti-mail"></i> Email</button>`:''}</div></div>`:'';
   document.getElementById('view-doc-body').innerHTML=`
-    <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px">
-      <span><span style="color:#666">Customer: </span>${f['Customer Name']||''}</span>
-      <span style="color:#666">${dateStr(f['Date'])}</span>
-    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px"><span><span style="color:#666">Customer: </span>${f['Customer Name']||''}</span><span style="color:#666">${dateStr(f['Date'])}</span></div>
     ${cust&&cust.fields['Vehicle']?`<div style="font-size:12px;color:#666;margin-bottom:10px"><i class="ti ti-car" style="font-size:12px;vertical-align:-1px"></i> ${cust.fields['Vehicle']}</div>`:''}
-    <table style="width:100%;border-top:1px solid #e5e5e3">
-      <thead><tr style="font-size:11px;color:#666"><th style="text-align:left;padding:5px 0;font-weight:600">Service</th><th style="text-align:center;padding:5px 0;font-weight:600">Qty</th><th style="text-align:right;padding:5px 0;font-weight:600">Price</th><th style="text-align:right;padding:5px 0;font-weight:600">Total</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
+    <table style="width:100%;border-top:1px solid #e5e5e3"><thead><tr style="font-size:11px;color:#666"><th style="text-align:left;padding:5px 0;font-weight:600">Service</th><th style="text-align:center;padding:5px 0;font-weight:600">Qty</th><th style="text-align:right;padding:5px 0;font-weight:600">Price</th><th style="text-align:right;padding:5px 0;font-weight:600">Total</th></tr></thead><tbody>${rows}</tbody></table>
     <div style="border-top:1px solid #e5e5e3;padding-top:8px;margin-top:4px;text-align:right;font-size:16px;font-weight:600">${fmt(f['Total'])}</div>
     ${f['Notes']?`<div style="font-size:12px;color:#666;margin-top:8px;background:#f5f5f4;border-radius:8px;padding:10px">${f['Notes']}</div>`:''}
     ${quoteLinkHtml}${payLinkHtml}${sendPanel}`;
@@ -854,62 +554,44 @@ function viewDoc(type,id){
   document.getElementById('view-doc-footer').innerHTML=`<button class="btn-secondary btn-danger btn-sm" onclick="deleteDoc('${type}','${id}')"><i class="ti ti-trash"></i> Delete</button><button class="btn-secondary btn-sm" onclick="closeModal('view-doc')">Close</button>${action}`;
   openModal('view-doc');
 }
-
 function renderDashboard(){
   const revenue=cache.invoices.filter(i=>i.fields['Status']==='paid').reduce((s,i)=>s+(i.fields['Total']||0),0);
-  document.getElementById('stats-grid').innerHTML=`
-    <div class="stat"><div class="stat-label">Customers</div><div class="stat-value">${cache.customers.length}</div></div>
-    <div class="stat"><div class="stat-label">Active quotes</div><div class="stat-value">${cache.quotes.filter(q=>['sent','approved'].includes(q.fields['Status'])).length}</div></div>
-    <div class="stat"><div class="stat-label">Pending invoices</div><div class="stat-value">${cache.invoices.filter(i=>i.fields['Status']==='pending').length}</div></div>
-    <div class="stat"><div class="stat-label">Revenue collected</div><div class="stat-value">${fmt(revenue)}</div></div>`;
+  document.getElementById('stats-grid').innerHTML=`<div class="stat"><div class="stat-label">Customers</div><div class="stat-value">${cache.customers.length}</div></div><div class="stat"><div class="stat-label">Active quotes</div><div class="stat-value">${cache.quotes.filter(q=>['sent','approved'].includes(q.fields['Status'])).length}</div></div><div class="stat"><div class="stat-label">Pending invoices</div><div class="stat-value">${cache.invoices.filter(i=>i.fields['Status']==='pending').length}</div></div><div class="stat"><div class="stat-label">Revenue collected</div><div class="stat-value">${fmt(revenue)}</div></div>`;
   const recent=[...cache.quotes.map(q=>({...q,_type:'quote',_d:new Date(q.fields['Date']||0)})),...cache.invoices.map(i=>({...i,_type:'invoice',_d:new Date(i.fields['Date']||0)}))].sort((a,b)=>b._d-a._d).slice(0,6);
   const el=document.getElementById('recent-activity');
   if(!recent.length){el.innerHTML=`<div class="empty-state" style="padding:24px"><i class="ti ti-activity"></i><p>No activity yet. Add a customer to get started!</p></div>`;return;}
   const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft',pending:'badge-pending',paid:'badge-paid'};
-  el.innerHTML=recent.map(d=>{const f=d.fields;const status=f['Status']||'draft';const num=f['Quote Number']||f['Invoice Number']||'';
-    return`<div class="row-item" onclick="viewDoc('${d._type}','${d.id}')" style="cursor:pointer">
-      <div class="doc-icon ${d._type}"><i class="ti ti-${d._type==='quote'?'file-text':'receipt'}"></i></div>
-      <div class="item-info"><div class="item-title">${num} · ${f['Customer Name']||''}</div><div class="item-meta">${d._type==='quote'?'Quote':'Invoice'} · ${dateStr(f['Date'])}</div></div>
-      <div style="text-align:right;flex-shrink:0"><div style="font-size:13px;font-weight:600">${fmt(f['Total'])}</div><span class="badge ${bm[status]||'badge-draft'}">${status}</span></div>
-    </div>`;
-  }).join('');
+  el.innerHTML=recent.map(d=>{const f=d.fields;const status=f['Status']||'draft';const num=f['Quote Number']||f['Invoice Number']||'';return`<div class="row-item" onclick="viewDoc('${d._type}','${d.id}')" style="cursor:pointer"><div class="doc-icon ${d._type}"><i class="ti ti-${d._type==='quote'?'file-text':'receipt'}"></i></div><div class="item-info"><div class="item-title">${num} · ${f['Customer Name']||''}</div><div class="item-meta">${d._type==='quote'?'Quote':'Invoice'} · ${dateStr(f['Date'])}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:13px;font-weight:600">${fmt(f['Total'])}</div><span class="badge ${bm[status]||'badge-draft'}">${status}</span></div></div>`;}).join('');
 }
 function renderCustomers(){
   const el=document.getElementById('customer-list');
   if(!cache.customers.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-users"></i><p>No customers yet.</p></div>`;return;}
   el.innerHTML=cache.customers.map(c=>{const f=c.fields;const name=f['Full Name']||'Unknown';
-    return`<div class="row-item"><div class="avatar">${initials(name)}</div><div class="item-info"><div class="item-title">${name}</div><div class="item-meta">${[f['Vehicle'],f['Phone']].filter(Boolean).join(' · ')}</div></div><button class="btn-secondary btn-sm" onclick="viewCustomer('${c.id}')"><i class="ti ti-eye"></i></button></div>`;
+    const appt=f['Appointment Date']?` · 📅 ${dateStr(f['Appointment Date'])}`:'';
+    return`<div class="row-item"><div class="avatar">${initials(name)}</div><div class="item-info"><div class="item-title">${name}</div><div class="item-meta">${[f['Vehicle'],f['Phone']].filter(Boolean).join(' · ')}${appt}</div></div><button class="btn-secondary btn-sm" onclick="viewCustomer('${c.id}')"><i class="ti ti-eye"></i></button></div>`;
   }).join('');
 }
 function renderServices(){
   const el=document.getElementById('service-list');
   if(!cache.services.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-list-check"></i><p>No services yet. Add your detailing packages!</p></div>`;return;}
-  el.innerHTML=cache.services.map(s=>{const f=s.fields;
-    return`<div class="row-item"><div class="doc-icon service"><i class="ti ti-sparkles"></i></div><div class="item-info"><div class="item-title">${f['Service Name']||''}</div><div class="item-meta">${f['Description']||'No description'}</div></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><span style="font-size:13px;font-weight:600">${fmt(f['Price'])}</span><button class="btn-secondary btn-sm" onclick="viewService('${s.id}')"><i class="ti ti-eye"></i></button></div></div>`;
-  }).join('');
+  el.innerHTML=cache.services.map(s=>{const f=s.fields;return`<div class="row-item"><div class="doc-icon service"><i class="ti ti-sparkles"></i></div><div class="item-info"><div class="item-title">${f['Service Name']||''}</div><div class="item-meta">${f['Description']||'No description'}</div></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><span style="font-size:13px;font-weight:600">${fmt(f['Price'])}</span><button class="btn-secondary btn-sm" onclick="viewService('${s.id}')"><i class="ti ti-eye"></i></button></div></div>`;}).join('');
 }
 function renderQuotes(){
-  const el=document.getElementById('quote-list');
-  let list=cache.quotes;
+  const el=document.getElementById('quote-list');let list=cache.quotes;
   if(docFilter.quotes!=='all')list=list.filter(q=>q.fields['Status']===docFilter.quotes);
   if(!list.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-file-text"></i><p>No quotes here.</p></div>`;return;}
   const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft'};
-  el.innerHTML=[...list].reverse().map(q=>{const f=q.fields;const status=f['Status']||'draft';
-    return`<div class="row-item" onclick="viewDoc('quote','${q.id}')" style="cursor:pointer"><div class="doc-icon quote"><i class="ti ti-file-text"></i></div><div class="item-info"><div class="item-title">${f['Quote Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} · <span class="badge ${bm[status]||'badge-draft'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;
-  }).join('');
+  el.innerHTML=[...list].reverse().map(q=>{const f=q.fields;const status=f['Status']||'draft';return`<div class="row-item" onclick="viewDoc('quote','${q.id}')" style="cursor:pointer"><div class="doc-icon quote"><i class="ti ti-file-text"></i></div><div class="item-info"><div class="item-title">${f['Quote Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} · <span class="badge ${bm[status]||'badge-draft'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;}).join('');
 }
 function renderInvoices(){
-  const el=document.getElementById('invoice-list');
-  let list=cache.invoices;
+  const el=document.getElementById('invoice-list');let list=cache.invoices;
   if(docFilter.invoices!=='all')list=list.filter(i=>i.fields['Status']===docFilter.invoices);
   if(!list.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-receipt"></i><p>No invoices here.</p></div>`;return;}
-  el.innerHTML=[...list].reverse().map(i=>{const f=i.fields;const status=f['Status']||'pending';
-    return`<div class="row-item" onclick="viewDoc('invoice','${i.id}')" style="cursor:pointer"><div class="doc-icon invoice"><i class="ti ti-receipt"></i></div><div class="item-info"><div class="item-title">${f['Invoice Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} · <span class="badge ${status==='paid'?'badge-paid':'badge-pending'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;
-  }).join('');
+  el.innerHTML=[...list].reverse().map(i=>{const f=i.fields;const status=f['Status']||'pending';return`<div class="row-item" onclick="viewDoc('invoice','${i.id}')" style="cursor:pointer"><div class="doc-icon invoice"><i class="ti ti-receipt"></i></div><div class="item-info"><div class="item-title">${f['Invoice Number']||''} · ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} · <span class="badge ${status==='paid'?'badge-paid':'badge-pending'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;}).join('');
 }
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderInvoices();}
-
-async function init(){ console.log('v3-delete');
+async function init(){
+  console.log('v5-address-appt');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
