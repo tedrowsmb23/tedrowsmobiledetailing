@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v24-form-fix2 -->
+<!-- v25-form-fix3 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -573,7 +573,9 @@ async function submitPublicForm(formId){
   const notesVal=document.getElementById('pf-notes')?.value.trim()||'';
   const fields={'Full Name':name,'Phone':phone,'Vehicle':document.getElementById('pf-vehicle')?.value.trim()||'','Address':document.getElementById('pf-address')?.value.trim()||'','Notes':notesVal};
   try{
-    await fetch('/api/submit-form',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields})});
+    const resp=await fetch('/api/submit-form',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields})});
+    const result=await resp.json();
+    if(!result.success){throw new Error(result.error||'Failed');}
     document.getElementById('form-page-content').innerHTML=`<div class="quote-status-box">
       <div class="quote-status-icon">🚗</div>
       <div class="quote-status-title" style="color:#006064">${cfg.thankyou||"Thanks! We'll be in touch shortly."}</div>
@@ -1164,7 +1166,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v24-form-fix2');
+  console.log('v25-form-fix3');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
