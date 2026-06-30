@@ -12,12 +12,12 @@ export default async function handler(req) {
 
   try {
     const body = await req.text();
-    
+
     // Verify Square webhook signature
     const webhookKey = process.env.SQUARE_WEBHOOK_KEY;
     const signature = req.headers.get('x-square-hmacsha256-signature');
     const url = 'https://app.tedrowsmobiledetail.com/api/square-webhook';
-    
+
     if (webhookKey && signature) {
       const encoder = new TextEncoder();
       const keyData = encoder.encode(webhookKey);
@@ -33,45 +33,47 @@ export default async function handler(req) {
     }
 
     const event = JSON.parse(body);
-    
-    // Only handle payment.updated where payment is COMPLETED
+
+    // Only handle completed payments
     if (event.type !== 'payment.updated') {
       return new Response('OK', { status: 200 });
     }
 
     const payment = event.data?.object?.payment;
     if (!payment || payment.status !== 'COMPLETED') {
-      return new Response('OK', { status: 200 });
+      return new Response('OK - not completed', { status: 200 });
     }
 
     const paymentId = payment.id;
-    const amountCents = payment.total_money?.amount || 0;
-    const note = payment.note || '';
+    const orderId = payment.order_id;
+    const paidDate = new Date().toISOString().slice(0, 10);
 
-    // Extract invoice number from the payment note (format: "INV-001 — Tedrow's Mobile Detailing")
-    const invMatch = note.match(/INV-\d+/);
-    if (!invMatch) {
-      return new Response('OK - no invoice number in note', { status: 200 });
+    if (!orderId) {
+      return new Response('OK - no order_id', { status: 200 });
     }
-    const invoiceNumber = invMatch[0];
 
-    // Find the invoice in Airtable by Invoice Number
-    const searchUrl = `${AT_BASE}/${INVOICES_TABLE}?filterByFormula=${encodeURIComponent(`{Invoice Number}='${invoiceNumber}'`)}`;
+    // Find invoice in Airtable by Square Order ID
+    const searchUrl = `${AT_BASE}/${INVOICES_TABLE}?filterByFormula=${encodeURIComponent(`{Square Order ID}='${orderId}'`)}`;
     const searchResp = await fetch(searchUrl, {
       headers: { 'Authorization': 'Bearer ' + AIRTABLE_TOKEN }
     });
     const searchData = await searchResp.json();
-    
+
     if (!searchData.records || searchData.records.length === 0) {
-      return new Response('Invoice not found', { status: 200 });
+      return new Response('OK - no matching invoice for order ' + orderId, { status: 200 });
     }
 
     const record = searchData.records[0];
-    
-    // Update invoice: mark paid, save transaction ID and payment date
-    const updateResp = await fetch(`${AT_BASE}/${INVOICES_TABLE}/${record.id}`, {
+
+    // Only update if not already paid
+    if (record.fields['Status'] === 'paid') {
+      return new Response('OK - already paid', { status: 200 });
+    }
+
+    // Mark invoice paid, save payment ID and date
+    await fetch(`${AT_BASE}/${INVOICES_TABLE}/${record.id}`, {
       method: 'PATCH',
-      headers: { 
+      headers: {
         'Authorization': 'Bearer ' + AIRTABLE_TOKEN,
         'Content-Type': 'application/json'
       },
@@ -79,18 +81,18 @@ export default async function handler(req) {
         fields: {
           'Status': 'paid',
           'Square Payment ID': paymentId,
-          'Paid Date': new Date().toISOString().slice(0, 10),
-          'Paid Amount': amountCents / 100
+          'Paid Date': paidDate,
+          'Paid Amount': (payment.total_money?.amount || 0) / 100
         }
       })
     });
 
-    if (!updateResp.ok) {
-      const err = await updateResp.text();
-      return new Response('Airtable update failed: ' + err, { status: 500 });
-    }
-
-    return new Response(JSON.stringify({ success: true, invoice: invoiceNumber, paymentId }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      invoice: record.fields['Invoice Number'],
+      paymentId,
+      orderId
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
