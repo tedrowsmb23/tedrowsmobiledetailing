@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v31-check-payments -->
+<!-- v32-refund-fix -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -717,26 +717,33 @@ function exportInvoicesQBO(){const list=getToolsFilteredInvoices();if(!list.leng
 ]);});});const today=new Date().toISOString().slice(0,10);downloadCSV(`tedrows-invoices-qbo-${today}.csv`,[header,...rows]);toast(`Exported ${list.length} invoice${list.length!==1?'s':''} for QuickBooks!`);}
 
 // ── REFUND FUNCTIONS ──
+let refundInFlight=false;
 async function issueSquareRefund(docId){
+  if(refundInFlight){toast('Refund already in progress...');return;}
   const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;
   const f=inv.fields;
   const paymentId=f['Square Payment ID'];
   const total=f['Total']||0;
   if(!paymentId){toast('No Square payment ID found');return;}
+  if(f['Status']==='refunded'){toast('This invoice is already marked refunded.');return;}
   if(!confirm(`Issue a full refund of ${fmt(total)} to this customer? This cannot be undone.`))return;
+
+  refundInFlight=true;
   const btn=document.getElementById('refund-sq-btn');if(btn){btn.disabled=true;btn.textContent='Processing...';}
   try{
-    const resp=await fetch('/api/square-refund',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId,amount:total})});
+    const resp=await fetch('/api/square-refund',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId})});
     const data=await resp.json();
     if(!data.success)throw new Error(data.error||'Refund failed');
-    // Mark invoice as refunded in Airtable
+    // Mark invoice as refunded in Airtable (covers both fresh refunds and "already refunded" cases)
     await atUpdate(TABLES.invoices,docId,{'Status':'refunded','Refund Date':new Date().toISOString().slice(0,10)});
     inv.fields['Status']='refunded';inv.fields['Refund Date']=new Date().toISOString().slice(0,10);
-    toast('Refund issued successfully!');renderAll();closeModal('view-doc');
+    toast(data.alreadyRefunded?'This payment was already refunded — invoice updated.':'Refund issued successfully!');
+    renderAll();closeModal('view-doc');
   }catch(e){
     toast('Refund error: '+e.message);
     if(btn){btn.disabled=false;btn.textContent='Refund via Square';}
   }
+  refundInFlight=false;
 }
 
 async function markRefundedManual(docId){
@@ -891,7 +898,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v31-check-payments');
+  console.log('v32-refund-fix');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
