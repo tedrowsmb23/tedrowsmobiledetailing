@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v29-dashboard-plus -->
+<!-- v30-refunds -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -87,6 +87,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .badge-in-progress{background:#fef9c3;color:#854d0e}
 .badge-complete{background:#e0f7fa;color:#006064}
 .badge-invoiced{background:#f3e8ff;color:#6b21a8}
+.badge-refunded{background:#fef2f2;color:#991f1f}
+.btn-refund{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:#fef2f2;color:#991f1f;border:1px solid #fca5a5;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
+.btn-refund:hover{background:#fee2e2}
+.btn-refund:disabled{opacity:0.6;cursor:not-allowed}
 .doc-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .doc-icon.quote{background:#e0f7fa;color:#006064}
 .doc-icon.invoice{background:#e0f7fa;color:#0097a7}
@@ -304,6 +308,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button class="tab active" onclick="filterDocs('invoices','all',this)">All</button>
         <button class="tab" onclick="filterDocs('invoices','pending',this)">Pending</button>
         <button class="tab" onclick="filterDocs('invoices','paid',this)">Paid</button>
+        <button class="tab" onclick="filterDocs('invoices','refunded',this)">Refunded</button>
       </div>
       <div class="card" style="padding:4px 18px"><div id="invoice-list"></div></div>
     </div>
@@ -647,7 +652,27 @@ async function markStatus(docId,type,status){try{await atUpdate(type==='quote'?T
 async function generateLinkForExisting(docId){const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;const f=inv.fields;toast('Generating Square payment link...');const link=await generateSquarePaymentLink(f['Invoice Number']||docId,f['Total']||0);if(!link){toast('Could not generate link');return;}try{await atUpdate(TABLES.invoices,docId,{'Square Payment Link':link});inv.fields['Square Payment Link']=link;toast('Payment link added!');viewDoc('invoice',docId);}catch(e){toast('Error: '+e.message);}}
 function filterDocs(type,filter,btn){docFilter[type]=filter;btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');type==='quotes'?renderQuotes():renderInvoices();}
 
-function viewDoc(type,id){const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===id);if(!doc)return;viewingId.doc=id;viewingId.docType=type;const f=doc.fields;const num=f['Quote Number']||f['Invoice Number']||'';const status=f['Status']||'draft';document.getElementById('view-doc-title').textContent=num;const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft',pending:'badge-pending',paid:'badge-paid'};document.getElementById('view-doc-badge').innerHTML=`<span class="badge ${bm[status]||'badge-draft'}">${status}</span>`;const cust=cache.customers.find(c=>c.id===f['Customer ID']);let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}const rows=lines.map(l=>`<tr><td style="padding:5px 0;font-size:13px">${l.name}</td><td style="text-align:center;padding:5px 0;font-size:13px">${l.qty}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.price)}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.qty*l.price)}</td></tr>`).join('');let quoteLinkHtml='';if(type==='quote'&&status==='sent'){const qLink=getQuoteLink(id);quoteLinkHtml=`<div class="quote-link-box"><div class="quote-link-label"><i class="ti ti-link"></i> Customer approval link</div><div class="quote-link-url">${qLink}</div><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${qLink}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy link</button></div>`;}let payLinkHtml='';if(type==='invoice'){if(f['Square Payment Link']){payLinkHtml=`<div class="pay-link-box"><div class="pay-link-label"><i class="ti ti-brand-square"></i> Square payment link</div><div class="pay-link-url">${f['Square Payment Link']}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${f['Square Payment Link']}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy</button><a href="${f['Square Payment Link']}" target="_blank" class="btn-square btn-sm" style="text-decoration:none"><i class="ti ti-external-link"></i> Open</a></div></div>`;}else{payLinkHtml=`<div style="background:#f5f5f4;border-radius:8px;padding:12px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#666">No payment link yet</span><button class="btn-square btn-sm" onclick="generateLinkForExisting('${id}')"><i class="ti ti-brand-square"></i> Generate Square link</button></div>`;}}const hasSms=cust&&cust.fields['Phone'];const sendPanel=hasSms?`<div class="send-box"><div class="send-box-label">Send to ${f['Customer Name']||'customer'}</div><div class="send-btns"><button class="btn-sms btn-sm" onclick="sendSms('${id}','${type}')"><i class="ti ti-message"></i> Text</button></div></div>`:'';document.getElementById('view-doc-body').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px"><span><span style="color:#666">Customer: </span>${f['Customer Name']||''}</span><span style="color:#666">${dateStr(f['Date'])}</span></div>${cust&&cust.fields['Vehicle']?`<div style="font-size:12px;color:#666;margin-bottom:10px"><i class="ti ti-car" style="font-size:12px;vertical-align:-1px"></i> ${cust.fields['Vehicle']}</div>`:''}<table style="width:100%;border-top:1px solid #e5e5e3"><thead><tr style="font-size:11px;color:#666"><th style="text-align:left;padding:5px 0;font-weight:600">Service</th><th style="text-align:center;padding:5px 0;font-weight:600">Qty</th><th style="text-align:right;padding:5px 0;font-weight:600">Price</th><th style="text-align:right;padding:5px 0;font-weight:600">Total</th></tr></thead><tbody>${rows}</tbody></table><div style="border-top:1px solid #e5e5e3;padding-top:8px;margin-top:4px;text-align:right;font-size:16px;font-weight:600">${fmt(f['Total'])}</div>${f['Notes']?`<div style="font-size:12px;color:#666;margin-top:8px;background:#f5f5f4;border-radius:8px;padding:10px">${f['Notes']}</div>`:''}${quoteLinkHtml}${payLinkHtml}${sendPanel}`;let action='';if(type==='quote'&&status==='sent')action=`<button class="btn-success btn-sm" style="padding:8px 14px" onclick="markStatus('${id}','quote','approved')"><i class="ti ti-check"></i> Mark approved</button>`;if(type==='quote'&&status==='approved')action=`<button class="btn-job btn-sm" style="padding:8px 14px" onclick="openCreateJobFromQuote('${id}')"><i class="ti ti-calendar-event"></i> Create job</button>`;if(type==='invoice'&&status==='pending')action=`<button class="btn-success btn-sm" style="padding:8px 14px" onclick="markStatus('${id}','invoice','paid')"><i class="ti ti-check"></i> Mark as paid</button>`;document.getElementById('view-doc-footer').innerHTML=`<button class="btn-secondary btn-danger btn-sm" onclick="deleteDoc('${type}','${id}')"><i class="ti ti-trash"></i> Delete</button><button class="btn-secondary btn-sm" onclick="closeModal('view-doc')">Close</button>${action}`;openModal('view-doc');}
+function viewDoc(type,id){const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===id);if(!doc)return;viewingId.doc=id;viewingId.docType=type;const f=doc.fields;const num=f['Quote Number']||f['Invoice Number']||'';const status=f['Status']||'draft';document.getElementById('view-doc-title').textContent=num;const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft',pending:'badge-pending',paid:'badge-paid'};document.getElementById('view-doc-badge').innerHTML=`<span class="badge ${bm[status]||'badge-draft'}">${status}</span>`;const cust=cache.customers.find(c=>c.id===f['Customer ID']);let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}const rows=lines.map(l=>`<tr><td style="padding:5px 0;font-size:13px">${l.name}</td><td style="text-align:center;padding:5px 0;font-size:13px">${l.qty}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.price)}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.qty*l.price)}</td></tr>`).join('');let quoteLinkHtml='';if(type==='quote'&&status==='sent'){const qLink=getQuoteLink(id);quoteLinkHtml=`<div class="quote-link-box"><div class="quote-link-label"><i class="ti ti-link"></i> Customer approval link</div><div class="quote-link-url">${qLink}</div><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${qLink}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy link</button></div>`;}let payLinkHtml='';if(type==='invoice'){if(f['Square Payment Link']){payLinkHtml=`<div class="pay-link-box"><div class="pay-link-label"><i class="ti ti-brand-square"></i> Square payment link</div><div class="pay-link-url">${f['Square Payment Link']}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${f['Square Payment Link']}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy</button><a href="${f['Square Payment Link']}" target="_blank" class="btn-square btn-sm" style="text-decoration:none"><i class="ti ti-external-link"></i> Open</a></div></div>`;}else{payLinkHtml=`<div style="background:#f5f5f4;border-radius:8px;padding:12px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#666">No payment link yet</span><button class="btn-square btn-sm" onclick="generateLinkForExisting('${id}')"><i class="ti ti-brand-square"></i> Generate Square link</button></div>`;}}const hasSms=cust&&cust.fields['Phone'];const sendPanel=hasSms?`<div class="send-box"><div class="send-box-label">Send to ${f['Customer Name']||'customer'}</div><div class="send-btns"><button class="btn-sms btn-sm" onclick="sendSms('${id}','${type}')"><i class="ti ti-message"></i> Text</button></div></div>`:'';document.getElementById('view-doc-body').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px"><span><span style="color:#666">Customer: </span>${f['Customer Name']||''}</span><span style="color:#666">${dateStr(f['Date'])}</span></div>${cust&&cust.fields['Vehicle']?`<div style="font-size:12px;color:#666;margin-bottom:10px"><i class="ti ti-car" style="font-size:12px;vertical-align:-1px"></i> ${cust.fields['Vehicle']}</div>`:''}<table style="width:100%;border-top:1px solid #e5e5e3"><thead><tr style="font-size:11px;color:#666"><th style="text-align:left;padding:5px 0;font-weight:600">Service</th><th style="text-align:center;padding:5px 0;font-weight:600">Qty</th><th style="text-align:right;padding:5px 0;font-weight:600">Price</th><th style="text-align:right;padding:5px 0;font-weight:600">Total</th></tr></thead><tbody>${rows}</tbody></table><div style="border-top:1px solid #e5e5e3;padding-top:8px;margin-top:4px;text-align:right;font-size:16px;font-weight:600">${fmt(f['Total'])}</div>${f['Notes']?`<div style="font-size:12px;color:#666;margin-top:8px;background:#f5f5f4;border-radius:8px;padding:10px">${f['Notes']}</div>`:''}${quoteLinkHtml}${payLinkHtml}${sendPanel}`;let action='';
+  if(type==='quote'&&status==='sent')action=`<button class="btn-success btn-sm" style="padding:8px 14px" onclick="markStatus('${id}','quote','approved')"><i class="ti ti-check"></i> Mark approved</button>`;
+  if(type==='quote'&&status==='approved')action=`<button class="btn-job btn-sm" style="padding:8px 14px" onclick="openCreateJobFromQuote('${id}')"><i class="ti ti-calendar-event"></i> Create job</button>`;
+  if(type==='invoice'&&status==='pending')action=`<button class="btn-success btn-sm" style="padding:8px 14px" onclick="markStatus('${id}','invoice','paid')"><i class="ti ti-check"></i> Mark as paid</button>`;
+  if(type==='invoice'&&status==='paid'){
+    if(f['Square Payment ID']){
+      action=`<button class="btn-refund btn-sm" id="refund-sq-btn" style="padding:8px 14px" onclick="issueSquareRefund('${id}')"><i class="ti ti-rotate-clockwise-2"></i> Refund via Square</button>`;
+    } else {
+      action=`<button class="btn-refund btn-sm" style="padding:8px 14px" onclick="markRefundedManual('${id}')"><i class="ti ti-rotate-clockwise-2"></i> Mark refunded (Zelle)</button>`;
+    }
+  }
+  // Show paid date and payment ID if available
+  let paidInfo='';
+  if(type==='invoice'&&f['Square Payment ID']){
+    paidInfo=`<div style="font-size:11px;color:#666;background:#f5f5f4;border-radius:6px;padding:8px 10px;margin-top:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-brand-square" style="font-size:13px;color:#006064"></i> Paid via Square${f['Paid Date']?' on '+dateStr(f['Paid Date']):''}</div>`;
+  }
+  if(type==='invoice'&&status==='refunded'){
+    paidInfo=`<div style="font-size:11px;color:#991f1f;background:#fef2f2;border-radius:6px;padding:8px 10px;margin-top:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-rotate-clockwise-2" style="font-size:13px"></i> Refunded${f['Refund Date']?' on '+dateStr(f['Refund Date']):''}</div>`;
+  }
+  document.getElementById('view-doc-body').innerHTML=document.getElementById('view-doc-body').innerHTML+paidInfo;
+  document.getElementById('view-doc-footer').innerHTML=`<button class="btn-secondary btn-danger btn-sm" onclick="deleteDoc('${type}','${id}')"><i class="ti ti-trash"></i> Delete</button><button class="btn-secondary btn-sm" onclick="closeModal('view-doc')">Close</button>${action}`;openModal('view-doc');}
 
 // ── FORMS ──
 let localForms=[];
@@ -673,6 +698,40 @@ function updateExportSummary(){const list=getToolsFilteredInvoices();const total
 function previewInvoiceExport(){const list=getToolsFilteredInvoices();const preview=document.getElementById('export-inv-preview');updateExportSummary();if(!list.length){preview.innerHTML=`<div style="font-size:12px;color:#999;margin-top:8px">No invoices match.</div>`;return;}const rows=list.slice(0,5);preview.innerHTML=`<div style="font-size:12px;color:#666;margin-top:10px;margin-bottom:6px">Preview (${Math.min(5,list.length)} of ${list.length}):</div><div class="import-preview-table"><table><thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th></tr></thead><tbody>${rows.map(i=>`<tr><td>${i.fields['Invoice Number']||''}</td><td>${i.fields['Customer Name']||''}</td><td>${i.fields['Date']||''}</td><td>${fmt(i.fields['Total'])}</td><td>${i.fields['Status']||''}</td></tr>`).join('')}</tbody></table></div>`;}
 function exportInvoicesQBO(){const list=getToolsFilteredInvoices();if(!list.length){toast('No invoices match the selected filters.');return;}const header=['InvoiceNo','Customer','InvoiceDate','DueDate','Item(Product/Service)','ItemDescription','ItemQuantity','ItemRate','ItemAmount','Subtotal','TaxName','TaxRate','TaxAmount','Total','PaymentMethod','Notes','Status'];const rows=[];list.forEach(inv=>{const f=inv.fields;let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}if(!lines.length)lines=[{name:'Service',qty:1,price:f['Total']||0}];const subtotal=lines.reduce((s,l)=>s+(l.qty*l.price),0);const taxAmt=(subtotal*TAX_RATE).toFixed(2);const total=(f['Total']||0).toFixed(2);const date=f['Date']||'';lines.forEach((l,idx)=>{rows.push([f['Invoice Number']||'',f['Customer Name']||'',date,date,l.name||'Service',l.name||'',l.qty||1,(l.price||0).toFixed(2),((l.qty||1)*(l.price||0)).toFixed(2),idx===0?subtotal.toFixed(2):'',idx===0?'NY Sales Tax':'',idx===0?(TAX_RATE*100).toFixed(3)+'%':'',idx===0?taxAmt:'',idx===0?total:'',idx===0?(f['Square Payment Link']?'Online':''):'',idx===0?(f['Notes']||''):'',idx===0?(f['Status']||''):''
 ]);});});const today=new Date().toISOString().slice(0,10);downloadCSV(`tedrows-invoices-qbo-${today}.csv`,[header,...rows]);toast(`Exported ${list.length} invoice${list.length!==1?'s':''} for QuickBooks!`);}
+
+// ── REFUND FUNCTIONS ──
+async function issueSquareRefund(docId){
+  const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;
+  const f=inv.fields;
+  const paymentId=f['Square Payment ID'];
+  const total=f['Total']||0;
+  if(!paymentId){toast('No Square payment ID found');return;}
+  if(!confirm(`Issue a full refund of ${fmt(total)} to this customer? This cannot be undone.`))return;
+  const btn=document.getElementById('refund-sq-btn');if(btn){btn.disabled=true;btn.textContent='Processing...';}
+  try{
+    const resp=await fetch('/api/square-refund',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId,amount:total})});
+    const data=await resp.json();
+    if(!data.success)throw new Error(data.error||'Refund failed');
+    // Mark invoice as refunded in Airtable
+    await atUpdate(TABLES.invoices,docId,{'Status':'refunded','Refund Date':new Date().toISOString().slice(0,10)});
+    inv.fields['Status']='refunded';inv.fields['Refund Date']=new Date().toISOString().slice(0,10);
+    toast('Refund issued successfully!');renderAll();closeModal('view-doc');
+  }catch(e){
+    toast('Refund error: '+e.message);
+    if(btn){btn.disabled=false;btn.textContent='Refund via Square';}
+  }
+}
+
+async function markRefundedManual(docId){
+  const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;
+  const f=inv.fields;
+  if(!confirm(`Mark this invoice as refunded? Use this for Zelle refunds you've already sent.`))return;
+  try{
+    await atUpdate(TABLES.invoices,docId,{'Status':'refunded','Refund Date':new Date().toISOString().slice(0,10)});
+    inv.fields['Status']='refunded';inv.fields['Refund Date']=new Date().toISOString().slice(0,10);
+    toast('Invoice marked as refunded');renderAll();closeModal('view-doc');
+  }catch(e){toast('Error: '+e.message);}
+}
 
 // ── RENDER FUNCTIONS ──
 function renderDashboard(){
@@ -725,6 +784,7 @@ function renderInvoices(){
   const paidList=filterInvoicesByTime(cache.invoices).filter(i=>i.fields['Status']==='paid');
   const pendingList=filterInvoicesByTime(cache.invoices).filter(i=>i.fields['Status']==='pending');
 
+  const refundedList=filterInvoicesByTime(cache.invoices).filter(i=>i.fields['Status']==='refunded');
   let collected=0,taxTotal=0,discountTotal=0;
   paidList.forEach(inv=>{
     const b=getInvBreakdown(inv);
@@ -732,6 +792,7 @@ function renderInvoices(){
   });
   const yourTake=collected-taxTotal;
   const pending=pendingList.reduce((s,i)=>s+(i.fields['Total']||0),0);
+  const refundedTotal=refundedList.reduce((s,i)=>s+(i.fields['Total']||0),0);
 
   document.getElementById('inv-summary').innerHTML=`
     <div class="inv-sum-card highlight">
@@ -753,17 +814,21 @@ function renderInvoices(){
     ${pending>0?`<div class="inv-sum-card" style="grid-column:span 2;border-color:#6b21a8">
       <div class="inv-sum-label">&#9203; Pending (awaiting payment)</div>
       <div class="inv-sum-value" style="color:#6b21a8">${fmt(pending)}</div>
+    </div>`:''}
+    ${refundedTotal>0?`<div class="inv-sum-card" style="grid-column:span 2;border-color:#fca5a5">
+      <div class="inv-sum-label">&#8635; Refunded</div>
+      <div class="inv-sum-value" style="color:#991f1f">${fmt(refundedTotal)}</div>
     </div>`:''}`;
 
   const el=document.getElementById('invoice-list');
   if(!list.length){el.innerHTML=`<div class="empty-state"><i class="ti ti-receipt"></i><p>No invoices in this period.</p></div>`;return;}
-  el.innerHTML=[...list].reverse().map(i=>{const f=i.fields;const status=f['Status']||'pending';return`<div class="row-item" onclick="viewDoc('invoice','${i.id}')" style="cursor:pointer"><div class="doc-icon invoice"><i class="ti ti-receipt"></i></div><div class="item-info"><div class="item-title">${f['Invoice Number']||''} &middot; ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} &middot; <span class="badge ${status==='paid'?'badge-paid':'badge-pending'}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;}).join('');
+  el.innerHTML=[...list].reverse().map(i=>{const f=i.fields;const status=f['Status']||'pending';const badgeCls=status==='paid'?'badge-paid':status==='refunded'?'badge-refunded':'badge-pending';return`<div class="row-item" onclick="viewDoc('invoice','${i.id}')" style="cursor:pointer"><div class="doc-icon invoice"><i class="ti ti-receipt"></i></div><div class="item-info"><div class="item-title">${f['Invoice Number']||''} &middot; ${f['Customer Name']||''}</div><div class="item-meta">${dateStr(f['Date'])} &middot; <span class="badge ${badgeCls}">${status}</span></div></div><div style="font-size:13px;font-weight:600;flex-shrink:0">${fmt(f['Total'])}</div></div>`;}).join('');
 }
 
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v29-dashboard-plus');
+  console.log('v30-refunds');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
