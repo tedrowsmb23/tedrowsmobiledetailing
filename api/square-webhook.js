@@ -1,3 +1,4 @@
+// v3
 export const config = { runtime: 'edge' };
 
 const AIRTABLE_TOKEN = 'pataaV2WO4bTJ9Ei3.9b12449727bf7d6d6eda2b73a1925e7c748e439afaaee5f17e6874433f1ad512';
