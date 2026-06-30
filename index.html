@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v30-refunds -->
+<!-- v31-webhook-fix -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -562,6 +562,15 @@ async function atList(tableId){let all=[],offset='';do{const url=`${AT_BASE}/${t
 async function atCreate(tableId,fields){const r=await fetch(`${AT_BASE}/${tableId}`,{method:'POST',headers:AT_HEADERS,body:JSON.stringify({records:[{fields}]})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d.records[0];}
 async function atUpdate(tableId,recordId,fields){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'PATCH',headers:AT_HEADERS,body:JSON.stringify({fields})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d;}
 async function atDelete(tableId,recordId){const r=await fetch(`${AT_BASE}/${tableId}/${recordId}`,{method:'DELETE',headers:AT_HEADERS});const d=await r.json();if(d.error)throw new Error(d.error.message);}
+async function generateSquarePaymentLinkFull(invoiceNum,totalDollars){
+  try{
+    const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} — Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION},checkout_options:{allow_tipping:true}};
+    const r=await fetch('/api/square',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.errors&&d.errors.length)return{url:null,orderId:null};
+    return{url:d.payment_link?.url||null,orderId:d.payment_link?.order_id||null};
+  }catch(e){return{url:null,orderId:null};}
+}
 async function generateSquarePaymentLink(invoiceNum,totalDollars){try{const body={idempotency_key:invoiceNum+'-'+Date.now(),quick_pay:{name:`${invoiceNum} \u2014 Tedrow's Mobile Detailing`,price_money:{amount:Math.round(totalDollars*100),currency:'USD'},location_id:SQ_LOCATION},checkout_options:{allow_tipping:true}};const r=await fetch('/api/square',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(d.errors&&d.errors.length)return null;return d.payment_link?.url||null;}catch(e){return null;}}
 
 async function syncAll(){const btn=document.getElementById('sync-btn');btn.classList.add('syncing');try{const[c,s,q,i,j,fc]=await Promise.all([atList(TABLES.customers),atList(TABLES.services),atList(TABLES.quotes),atList(TABLES.invoices),atList(TABLES.jobs),atList(TABLES.formconfigs)]);cache.customers=c;cache.services=s;cache.quotes=q;cache.invoices=i;cache.jobs=j;localForms=fc.map(r=>({id:r.id,name:r.fields['Form Name']||'',cfg:JSON.parse(r.fields['Config']||'{}')}));renderAll();updateExportSummary();toast('Synced!');}catch(e){toast('Sync error: '+e.message);}btn.classList.remove('syncing');}
@@ -623,8 +632,15 @@ async function saveDoc(type,status,generateLink=false){
   const discAmtEl=document.getElementById(type+'-discount-amount');
   const discountAmt=discAmtEl?Math.abs(parseFloat(discAmtEl.textContent.replace(/[^0-9.]/g,''))||0):0;
 
-  let squareLink='';
-  if(type==='invoice'&&generateLink){toast('Generating Square payment link...');const num='INV-'+String(cache.invoices.length+1).padStart(3,'0');squareLink=await generateSquarePaymentLink(num,total)||'';if(squareLink)toast('Payment link generated!');}
+  let squareLink='',squareOrderId='';
+  if(type==='invoice'&&generateLink){
+    toast('Generating Square payment link...');
+    const num='INV-'+String(cache.invoices.length+1).padStart(3,'0');
+    const sqResult=await generateSquarePaymentLinkFull(num,total);
+    squareLink=sqResult.url||'';
+    squareOrderId=sqResult.orderId||'';
+    if(squareLink)toast('Payment link generated!');
+  }
 
   let fields;
   if(type==='quote'){
@@ -634,7 +650,8 @@ async function saveDoc(type,status,generateLink=false){
     const num='INV-'+String(cache.invoices.length+1).padStart(3,'0');
     fields={'Invoice Number':num,'Customer Name':custName,'Customer ID':custId,'Line Items':JSON.stringify(lines),
       'Subtotal':subtotal,'Discount Amount':discountAmt,'Tax Amount':tax,'Total':total,
-      'Notes':document.getElementById('invoice-notes').value.trim(),'Square Payment Link':squareLink,'Status':status,'Date':today};
+      'Notes':document.getElementById('invoice-notes').value.trim(),'Square Payment Link':squareLink,
+      'Square Order ID':squareOrderId,'Status':status,'Date':today};
   }
   try{
     const rec=await atCreate(type==='quote'?TABLES.quotes:TABLES.invoices,fields);
@@ -649,7 +666,7 @@ function buildSms(doc,type,cust){const f=doc.fields;const cf=cust?cust.fields:{}
 function sendSms(docId,type){const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===docId);if(!doc)return;const cust=cache.customers.find(c=>c.id===doc.fields['Customer ID']);const phone=((cust&&cust.fields['Phone'])||'').replace(/\D/g,'');window.location.href=`sms:${phone}${phone?'&':'?'}body=${encodeURIComponent(buildSms(doc,type,cust))}`;}
 async function deleteDoc(type,id){if(!confirm('Delete this '+(type==='quote'?'quote':'invoice')+'?'))return;try{await atDelete(type==='quote'?TABLES.quotes:TABLES.invoices,id);if(type==='quote')cache.quotes=cache.quotes.filter(d=>d.id!==id);else cache.invoices=cache.invoices.filter(d=>d.id!==id);toast('Deleted');closeModal('view-doc');renderAll();}catch(e){toast('Error: '+e.message);}}
 async function markStatus(docId,type,status){try{await atUpdate(type==='quote'?TABLES.quotes:TABLES.invoices,docId,{'Status':status});const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===docId);if(doc)doc.fields['Status']=status;toast(status==='approved'?'Quote approved!':status==='paid'?'Invoice marked paid!':'Updated!');renderAll();closeModal('view-doc');}catch(e){toast('Error: '+e.message);}}
-async function generateLinkForExisting(docId){const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;const f=inv.fields;toast('Generating Square payment link...');const link=await generateSquarePaymentLink(f['Invoice Number']||docId,f['Total']||0);if(!link){toast('Could not generate link');return;}try{await atUpdate(TABLES.invoices,docId,{'Square Payment Link':link});inv.fields['Square Payment Link']=link;toast('Payment link added!');viewDoc('invoice',docId);}catch(e){toast('Error: '+e.message);}}
+async function generateLinkForExisting(docId){const inv=cache.invoices.find(d=>d.id===docId);if(!inv)return;const f=inv.fields;toast('Generating Square payment link...');const result=await generateSquarePaymentLinkFull(f['Invoice Number']||docId,f['Total']||0);if(!result.url){toast('Could not generate link');return;}try{await atUpdate(TABLES.invoices,docId,{'Square Payment Link':result.url,'Square Order ID':result.orderId||''});inv.fields['Square Payment Link']=result.url;inv.fields['Square Order ID']=result.orderId||'';toast('Payment link added!');viewDoc('invoice',docId);}catch(e){toast('Error: '+e.message);}}
 function filterDocs(type,filter,btn){docFilter[type]=filter;btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');type==='quotes'?renderQuotes():renderInvoices();}
 
 function viewDoc(type,id){const list=type==='quote'?cache.quotes:cache.invoices;const doc=list.find(d=>d.id===id);if(!doc)return;viewingId.doc=id;viewingId.docType=type;const f=doc.fields;const num=f['Quote Number']||f['Invoice Number']||'';const status=f['Status']||'draft';document.getElementById('view-doc-title').textContent=num;const bm={draft:'badge-draft',sent:'badge-sent',approved:'badge-approved',declined:'badge-draft',pending:'badge-pending',paid:'badge-paid'};document.getElementById('view-doc-badge').innerHTML=`<span class="badge ${bm[status]||'badge-draft'}">${status}</span>`;const cust=cache.customers.find(c=>c.id===f['Customer ID']);let lines=[];try{lines=JSON.parse(f['Line Items']||'[]');}catch(e){}const rows=lines.map(l=>`<tr><td style="padding:5px 0;font-size:13px">${l.name}</td><td style="text-align:center;padding:5px 0;font-size:13px">${l.qty}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.price)}</td><td style="text-align:right;padding:5px 0;font-size:13px">${fmt(l.qty*l.price)}</td></tr>`).join('');let quoteLinkHtml='';if(type==='quote'&&status==='sent'){const qLink=getQuoteLink(id);quoteLinkHtml=`<div class="quote-link-box"><div class="quote-link-label"><i class="ti ti-link"></i> Customer approval link</div><div class="quote-link-url">${qLink}</div><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${qLink}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy link</button></div>`;}let payLinkHtml='';if(type==='invoice'){if(f['Square Payment Link']){payLinkHtml=`<div class="pay-link-box"><div class="pay-link-label"><i class="ti ti-brand-square"></i> Square payment link</div><div class="pay-link-url">${f['Square Payment Link']}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-success btn-sm" onclick="navigator.clipboard.writeText('${f['Square Payment Link']}').then(()=>toast('Copied!'))"><i class="ti ti-copy"></i> Copy</button><a href="${f['Square Payment Link']}" target="_blank" class="btn-square btn-sm" style="text-decoration:none"><i class="ti ti-external-link"></i> Open</a></div></div>`;}else{payLinkHtml=`<div style="background:#f5f5f4;border-radius:8px;padding:12px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#666">No payment link yet</span><button class="btn-square btn-sm" onclick="generateLinkForExisting('${id}')"><i class="ti ti-brand-square"></i> Generate Square link</button></div>`;}}const hasSms=cust&&cust.fields['Phone'];const sendPanel=hasSms?`<div class="send-box"><div class="send-box-label">Send to ${f['Customer Name']||'customer'}</div><div class="send-btns"><button class="btn-sms btn-sm" onclick="sendSms('${id}','${type}')"><i class="ti ti-message"></i> Text</button></div></div>`:'';document.getElementById('view-doc-body').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px"><span><span style="color:#666">Customer: </span>${f['Customer Name']||''}</span><span style="color:#666">${dateStr(f['Date'])}</span></div>${cust&&cust.fields['Vehicle']?`<div style="font-size:12px;color:#666;margin-bottom:10px"><i class="ti ti-car" style="font-size:12px;vertical-align:-1px"></i> ${cust.fields['Vehicle']}</div>`:''}<table style="width:100%;border-top:1px solid #e5e5e3"><thead><tr style="font-size:11px;color:#666"><th style="text-align:left;padding:5px 0;font-weight:600">Service</th><th style="text-align:center;padding:5px 0;font-weight:600">Qty</th><th style="text-align:right;padding:5px 0;font-weight:600">Price</th><th style="text-align:right;padding:5px 0;font-weight:600">Total</th></tr></thead><tbody>${rows}</tbody></table><div style="border-top:1px solid #e5e5e3;padding-top:8px;margin-top:4px;text-align:right;font-size:16px;font-weight:600">${fmt(f['Total'])}</div>${f['Notes']?`<div style="font-size:12px;color:#666;margin-top:8px;background:#f5f5f4;border-radius:8px;padding:10px">${f['Notes']}</div>`:''}${quoteLinkHtml}${payLinkHtml}${sendPanel}`;let action='';
@@ -828,7 +845,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v30-refunds');
+  console.log('v31-webhook-fix');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
