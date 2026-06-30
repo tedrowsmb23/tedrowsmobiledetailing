@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v31-webhook-fix -->
+<!-- v31-check-payments -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -286,7 +286,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <!-- INVOICES -->
     <div class="section" id="section-invoices">
-      <div class="page-header"><span class="page-title">Invoices</span><button class="btn-primary" onclick="openModal('invoice')"><i class="ti ti-plus"></i> New invoice</button></div>
+      <div class="page-header"><span class="page-title">Invoices</span><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn-secondary" id="check-payments-btn" onclick="checkSquarePayments()"><i class="ti ti-brand-square"></i> Check Square Payments</button><button class="btn-primary" onclick="openModal('invoice')"><i class="ti ti-plus"></i> New invoice</button></div></div>
       <!-- Time filter -->
       <div class="inv-filter-bar">
         <button class="inv-filter-btn active" onclick="setInvFilter('all',this)">All time</button>
@@ -750,6 +750,52 @@ async function markRefundedManual(docId){
   }catch(e){toast('Error: '+e.message);}
 }
 
+// ── CHECK SQUARE PAYMENTS ──
+async function checkSquarePayments(){
+  const btn=document.getElementById('check-payments-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-refresh" style="animation:spin 1s linear infinite"></i> Checking...';}
+  try{
+    const resp=await fetch('/api/square-check-payments',{method:'POST'});
+    const data=await resp.json();
+    if(!data.success)throw new Error(data.error||'Failed to check payments');
+    const payments=data.payments||[];
+
+    // Build a lookup of pending invoices by Square Order ID
+    const pendingInvoices=cache.invoices.filter(i=>i.fields['Status']==='pending'&&i.fields['Square Order ID']);
+
+    let matched=0;
+    for(const payment of payments){
+      if(!payment.orderId)continue;
+      const inv=pendingInvoices.find(i=>i.fields['Square Order ID']===payment.orderId);
+      if(!inv)continue;
+
+      // Mark this invoice paid
+      try{
+        await atUpdate(TABLES.invoices,inv.id,{
+          'Status':'paid',
+          'Square Payment ID':payment.paymentId,
+          'Paid Date':new Date().toISOString().slice(0,10),
+          'Paid Amount':payment.amount
+        });
+        inv.fields['Status']='paid';
+        inv.fields['Square Payment ID']=payment.paymentId;
+        inv.fields['Paid Date']=new Date().toISOString().slice(0,10);
+        matched++;
+      }catch(e){/* skip on error, continue with others */}
+    }
+
+    renderAll();
+    if(matched>0){
+      toast(`${matched} invoice${matched!==1?'s':''} marked paid!`);
+    }else{
+      toast('No new payments found');
+    }
+  }catch(e){
+    toast('Error: '+e.message);
+  }
+  if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-brand-square"></i> Check Square Payments';}
+}
+
 // ── RENDER FUNCTIONS ──
 function renderDashboard(){
   const activeQuotes=cache.quotes.filter(q=>['sent','approved','pending'].includes(q.fields['Status'])).length;
@@ -845,7 +891,7 @@ function renderInvoices(){
 function renderAll(){renderDashboard();renderCustomers();renderServices();renderQuotes();renderJobs();renderInvoices();renderForms();}
 
 async function init(){
-  console.log('v31-webhook-fix');
+  console.log('v31-check-payments');
   if(checkRoute()) return;
   await syncAll();
   document.getElementById('loading-screen').style.display='none';
