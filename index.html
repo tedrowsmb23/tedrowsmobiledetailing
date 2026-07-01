@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v37-pw-fix -->
+<!-- v38-customer-history -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -609,7 +609,46 @@ function setBtns(ids,disabled){ids.forEach(id=>{const b=document.getElementById(
 // ── CUSTOMERS ──
 async function saveCustomer(){const editId=document.getElementById('cust-edit-id').value;const first=document.getElementById('cust-first').value.trim();const last=document.getElementById('cust-last').value.trim();if(!first&&!last){alert('Please enter a name.');return;}setBtns(['cust-save-btn'],true);const fields={'Full Name':(first+' '+last).trim(),'Phone':document.getElementById('cust-phone').value.trim(),'Email':document.getElementById('cust-email').value.trim(),'Vehicle':document.getElementById('cust-vehicle').value.trim(),'Address':document.getElementById('cust-address').value.trim(),'Notes':document.getElementById('cust-notes').value.trim()};try{if(editId){await atUpdate(TABLES.customers,editId,fields);const idx=cache.customers.findIndex(c=>c.id===editId);if(idx>-1)cache.customers[idx].fields={...cache.customers[idx].fields,...fields};toast('Customer updated!');}else{const rec=await atCreate(TABLES.customers,fields);cache.customers.push(rec);toast('Customer saved!');}closeModal('customer');closeModal('view-customer');clearCustForm();renderAll();}catch(e){toast('Error: '+e.message);}setBtns(['cust-save-btn'],false);}
 function clearCustForm(){['cust-first','cust-last','cust-phone','cust-email','cust-vehicle','cust-address','cust-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('cust-edit-id').value='';document.getElementById('cust-modal-title').textContent='Add customer';}
-function viewCustomer(id){const c=cache.customers.find(x=>x.id===id);if(!c)return;viewingId.customer=id;const f=c.fields;document.getElementById('view-cust-name').textContent=f['Full Name']||'Unknown';const cq=cache.quotes.filter(q=>q.fields['Customer ID']===id).length;const ci=cache.invoices.filter(i=>i.fields['Customer ID']===id).length;const paid=cache.invoices.filter(i=>i.fields['Customer ID']===id&&i.fields['Status']==='paid').reduce((s,i)=>s+(i.fields['Total']||0),0);document.getElementById('view-cust-body').innerHTML=`${f['Lead Source']?`<div style="margin-bottom:10px">${sourceTag(f['Lead Source'])}</div>`:''}<table style="width:100%;font-size:13px;margin-bottom:12px">${f['Phone']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-phone" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Phone</td><td style="text-align:right">${f['Phone']}</td></tr>`:''}${f['Email']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-mail" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Email</td><td style="text-align:right;color:#00838f">${f['Email']}</td></tr>`:''}${f['Vehicle']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-car" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Vehicle</td><td style="text-align:right">${f['Vehicle']}</td></tr>`:''}${f['Address']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-map-pin" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Address</td><td style="text-align:right">${f['Address']}</td></tr>`:''}</table><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"><div class="stat"><div class="stat-label">Quotes</div><div class="stat-value" style="font-size:18px">${cq}</div></div><div class="stat"><div class="stat-label">Invoices</div><div class="stat-value" style="font-size:18px">${ci}</div></div><div class="stat"><div class="stat-label">Total paid</div><div class="stat-value" style="font-size:18px">${fmt(paid)}</div></div></div>${f['Notes']?`<div style="font-size:12px;color:#666;background:#f5f5f4;border-radius:8px;padding:10px">${f['Notes']}</div>`:''}`;openModal('view-customer');}
+function buildCustomerTimeline(custId){
+  const jobs=cache.jobs.filter(j=>j.fields['Customer ID']===custId).map(j=>({type:'job',date:j.fields['Appointment Date']||j.fields['Date']||'',rec:j}));
+  const invoices=cache.invoices.filter(i=>i.fields['Customer ID']===custId).map(i=>({type:'invoice',date:i.fields['Date']||'',rec:i}));
+  const combined=[...jobs,...invoices].filter(x=>x.date).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return combined;
+}
+
+function renderCustomerTimeline(custId){
+  const timeline=buildCustomerTimeline(custId);
+  if(!timeline.length){
+    return `<div style="text-align:center;padding:20px;color:#999;font-size:12px">No appointment or invoice history yet.</div>`;
+  }
+  const statusColors={scheduled:'badge-scheduled','in progress':'badge-in-progress',complete:'badge-complete',invoiced:'badge-invoiced',paid:'badge-paid',pending:'badge-pending',refunded:'badge-refunded'};
+  return timeline.map(item=>{
+    if(item.type==='job'){
+      const f=item.rec.fields;const status=f['Status']||'scheduled';
+      const svcList=(f['Services']||'').split(',').map(s=>s.trim()).filter(Boolean);
+      const svcText=svcList.length?svcList.join(', '):'No services listed';
+      return `<div class="row-item" onclick="closeModal('view-customer');viewJob('${item.rec.id}')" style="cursor:pointer">
+        <div class="doc-icon job"><i class="ti ti-calendar-event"></i></div>
+        <div class="item-info">
+          <div class="item-title">${dateStr(item.date)} &middot; ${f['Job Number']||'Job'}</div>
+          <div class="item-meta">${svcText}</div>
+        </div>
+        <span class="badge ${statusColors[status]||'badge-draft'}" style="flex-shrink:0">${status}</span>
+      </div>`;
+    } else {
+      const f=item.rec.fields;const status=f['Status']||'pending';
+      return `<div class="row-item" onclick="closeModal('view-customer');viewDoc('invoice','${item.rec.id}')" style="cursor:pointer">
+        <div class="doc-icon invoice"><i class="ti ti-receipt"></i></div>
+        <div class="item-info">
+          <div class="item-title">${dateStr(item.date)} &middot; ${f['Invoice Number']||'Invoice'}</div>
+          <div class="item-meta">${fmt(f['Total'])} &middot; <span class="badge ${statusColors[status]||'badge-pending'}" style="font-size:10px">${status}</span></div>
+        </div>
+      </div>`;
+    }
+  }).join('');
+}
+
+function viewCustomer(id){const c=cache.customers.find(x=>x.id===id);if(!c)return;viewingId.customer=id;const f=c.fields;document.getElementById('view-cust-name').textContent=f['Full Name']||'Unknown';const cq=cache.quotes.filter(q=>q.fields['Customer ID']===id).length;const ci=cache.invoices.filter(i=>i.fields['Customer ID']===id).length;const paid=cache.invoices.filter(i=>i.fields['Customer ID']===id&&i.fields['Status']==='paid').reduce((s,i)=>s+(i.fields['Total']||0),0);document.getElementById('view-cust-body').innerHTML=`${f['Lead Source']?`<div style="margin-bottom:10px">${sourceTag(f['Lead Source'])}</div>`:''}<table style="width:100%;font-size:13px;margin-bottom:12px">${f['Phone']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-phone" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Phone</td><td style="text-align:right">${f['Phone']}</td></tr>`:''}${f['Email']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-mail" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Email</td><td style="text-align:right;color:#00838f">${f['Email']}</td></tr>`:''}${f['Vehicle']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-car" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Vehicle</td><td style="text-align:right">${f['Vehicle']}</td></tr>`:''}${f['Address']?`<tr><td style="color:#666;padding:5px 0"><i class="ti ti-map-pin" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>Address</td><td style="text-align:right">${f['Address']}</td></tr>`:''}</table><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"><div class="stat"><div class="stat-label">Quotes</div><div class="stat-value" style="font-size:18px">${cq}</div></div><div class="stat"><div class="stat-label">Invoices</div><div class="stat-value" style="font-size:18px">${ci}</div></div><div class="stat"><div class="stat-label">Total paid</div><div class="stat-value" style="font-size:18px">${fmt(paid)}</div></div></div>${f['Notes']?`<div style="font-size:12px;color:#666;background:#f5f5f4;border-radius:8px;padding:10px;margin-bottom:12px">${f['Notes']}</div>`:''}<div style="font-size:13px;font-weight:600;margin-bottom:8px;padding-top:4px;border-top:1px solid #f0f0ee;padding-top:12px">History</div><div style="max-height:280px;overflow-y:auto">${renderCustomerTimeline(id)}</div>`;openModal('view-customer');}
 function editCustomer(){const c=cache.customers.find(x=>x.id===viewingId.customer);if(!c)return;closeModal('view-customer');const f=c.fields;const parts=(f['Full Name']||'').split(' ');document.getElementById('cust-edit-id').value=c.id;document.getElementById('cust-first').value=parts[0]||'';document.getElementById('cust-last').value=parts.slice(1).join(' ')||'';document.getElementById('cust-phone').value=f['Phone']||'';document.getElementById('cust-email').value=f['Email']||'';document.getElementById('cust-vehicle').value=f['Vehicle']||'';document.getElementById('cust-address').value=f['Address']||'';document.getElementById('cust-notes').value=f['Notes']||'';document.getElementById('cust-modal-title').textContent='Edit customer';openModal('customer');}
 async function deleteCustomer(){if(!confirm('Delete this customer?'))return;try{await atDelete(TABLES.customers,viewingId.customer);cache.customers=cache.customers.filter(x=>x.id!==viewingId.customer);toast('Deleted');closeModal('view-customer');renderAll();}catch(e){toast('Error: '+e.message);}}
 
@@ -1009,7 +1048,7 @@ async function startApp(){
 }
 
 async function init(){
-  console.log('v37-pw-fix');
+  console.log('v38-customer-history');
   if(checkRoute()) return; // public quote/form pages skip the gate entirely
 
   let unlocked=false;
