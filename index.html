@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v36-password-gate -->
+<!-- v37-pw-fix -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -994,6 +994,7 @@ function checkAppPassword(){
   if(input.value===APP_PASSWORD){
     try{localStorage.setItem(PW_STORAGE_KEY,'1');}catch(e){}
     document.getElementById('pw-gate').classList.remove('active');
+    document.getElementById('main-app').style.display='';
     startApp();
   }else{
     err.textContent='Incorrect password';
@@ -1008,7 +1009,7 @@ async function startApp(){
 }
 
 async function init(){
-  console.log('v36-password-gate');
+  console.log('v37-pw-fix');
   if(checkRoute()) return; // public quote/form pages skip the gate entirely
 
   let unlocked=false;
